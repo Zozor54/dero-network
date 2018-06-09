@@ -26,12 +26,13 @@ var socketRefresh = null;
 var baseBlockPropagation = null;
 var endBlockPropagation = null;
 var hasNewBlock = [];
+var blocktimePropagation = new Map();
 
 const SERVER_PORT = 8080;
 const FIRST_BLOCK = 9550;
-const REFRESH_TIME = '500';
+const REFRESH_TIME = '900';
 const API_KEY = 'c3295d20321531f9207bbc435f04971c';
-const IP_BANNED = [];
+const IP_BANNED = ['195.154.220.29'];
 const SERVER_VERSION = '0.1';
 
 app.get('/', function (req, res) {
@@ -153,8 +154,11 @@ mongoDbConnection(function(databaseConnection) {
 
                     // Network propagation
                     /*if (Object.keys(collectedNodes).length === hasNewBlock.length) {
-                        console.log('block propagation : ' + myTime - parseInt(baseBlockPropagation));
+                        blocktimePropagation.set(globalCurrentHeight, myTime - parseInt(baseBlockPropagation));
+                        hasNewBlock = [];
+                        console.dir(blocktimePropagation);
                     }*/
+
                 }
                 
                 if (data.lastBlockHeader.topoheight > globalCurrentHeight && data.lastBlockHeader.topoheight - globalCurrentHeight == 1) {
@@ -185,12 +189,6 @@ mongoDbConnection(function(databaseConnection) {
                     maxHeight = data.lastBlockHeader.topoheight;
                     askUpdate(maxHeight);
                 }
-
-                /*if (data.lastBlockHeader.topoheight == globalCurrentHeight && !refreshTxPool) {
-                    refreshTxPool = true;
-                    io.of('/website').emit('broadcast', {'txPool': data.get_info.txPool });
-                    refreshTxPool = false;
-                }*/
 
                 // Send to website
                 if (collectedNodes[ip].hasOwnProperty('geo')) {
