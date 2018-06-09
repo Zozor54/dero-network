@@ -29,6 +29,7 @@ var baseBlockPropagation = null;
 var endBlockPropagation = null;
 var hasNewBlock = [];
 
+const SERVER_PORT = 8080;
 const FIRST_BLOCK = 9550;
 const REFRESH_TIME = '500';
 const API_KEY = 'c3295d20321531f9207bbc435f04971c';
@@ -238,4 +239,4 @@ mongoDbConnection(function(databaseConnection) {
     });
 });
 
-server.listen(8080);
+server.listen(SERVER_PORT);
