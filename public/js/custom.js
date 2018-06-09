@@ -454,7 +454,11 @@ $(function() {
                     levelSeparation: 100,
                 }
             },
-            physics:false
+            physics:false,
+            interaction:{
+                dragNodes:false,
+                dragView: false
+            }
         };
 
         if (network !== null) {
