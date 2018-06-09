@@ -117,4 +117,5 @@ server {
 
 ## Credits
 
-* [Mojo](https://github.com/Mojo-LB/) : Thank you for your help and for the nginx configuration
+* Thank to [Mojo](https://github.com/Mojo-LB/) for your help and for the nginx configuration
+* Created by [Zoz](https://github.com/Zozor54)
