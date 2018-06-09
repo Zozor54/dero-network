@@ -1,5 +1,7 @@
 # Dero Network Status
 
+[http://stats.atlantis.dero.live/](http://stats.atlantis.dero.live/)
+
 ## Prerequisites
 
 ### You will find
@@ -113,4 +115,6 @@ server {
 ```
 
 
+## Credits
 
+* [Mojo](https://github.com/Mojo-LB/) : Thank you for your help and for the nginx configuration
