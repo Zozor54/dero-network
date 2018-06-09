@@ -452,6 +452,7 @@ $(function() {
                 hierarchical: {
                     direction: "RL",
                     levelSeparation: 100,
+                    edgeMinimization: false
                 }
             },
             physics:false,
