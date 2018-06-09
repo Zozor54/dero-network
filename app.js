@@ -12,8 +12,6 @@ var mongoDbConnection = require('./lib/mongodb-singleton.js');
 
 app.use(express.static(__dirname + '/public'));
 
-
-
 var api = require('./lib/api.js');
 
 global.collectedStats = {};
@@ -33,7 +31,7 @@ const SERVER_PORT = 8080;
 const FIRST_BLOCK = 9550;
 const REFRESH_TIME = '500';
 const API_KEY = 'c3295d20321531f9207bbc435f04971c';
-const IP_BANNED = ['195.154.220.29'];
+const IP_BANNED = [];
 const SERVER_VERSION = '0.1';
 
 app.get('/', function (req, res) {
