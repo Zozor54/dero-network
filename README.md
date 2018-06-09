@@ -38,9 +38,11 @@ const serverURL = 'http://54.37.72.72:8080/nodes'; // You need to change IP and 
 
 ### Compile nodes-side 
 
-```npm install pkg
+```
+npm install pkg
 pkg ./PATH/TO/node-side.js
-You will find 3 compiled file : Windows, Linux and MacOS. If your system is 64 bits this compiled files will be for it.```
+You will find 3 compiled file : Windows, Linux and MacOS. If your system is 64 bits this compiled files will be for it.
+```
 
 ### Configuring for SSL Using Nginx
 
@@ -54,25 +56,31 @@ In cert bot similarly (sudo certbot --nginx -d test.supportdero.com -d test2.sup
 
 #### Install and configure nginx
 
-```sudo apt install nginx
+```
+sudo apt install nginx
 sudo nano /etc/nginx/sites-available/default
-Use the below as config```
+Use the below as config
+```
 
-```server {
+```
+server {
     listen 80 default_server;
     listen [::]:80 default_server;
     root /var/www/html;
     server_name test.supportdero.com;
     location / {
             proxy_pass http://127.0.0.1:8080;
-    }```
+	}
+```
 
 #### Install certbot
 
-```sudo add-apt-repository ppa:certbot/certbot
+```
+sudo add-apt-repository ppa:certbot/certbot
 sudo apt-get update
 sudo apt-get install python-certbot-nginx
-sudo certbot --nginx -d test.supportdero.com```
+sudo certbot --nginx -d test.supportdero.com
+```
 
 Follow instructions and allow redirects, it will add SSL section to nginx config and force SSL redirects
 
@@ -93,14 +101,16 @@ Let’s Encrypt’s certificates are only valid for ninety days. This is to enco
 
 If you want to completely hide the backend, you can add the following at the end of `/etc/nginx/sites-available/default`
 
-```server {
+```
+server {
     listen 8080 default_server;
     listen [::]:8080 default_server;
     root /var/www/html;
     server_name _;
     location / {
             proxy_pass http://127.0.0.1:8080;
-    }```
+    }
+```
 
 
 
