@@ -23,6 +23,7 @@ $(function() {
         $('#networkLastReward').html(Math.round(data.lastBlockHeader.reward / coinUnits * 100) / 100);
         $('#networkAVGBlockTime').html(data.chart.avgBlockTime + 's');
         $('#networkCurrentTx').html(data.get_info.txPool);
+        $('#networkAvgTx').html(' / ' +data.chart.avgTransactions);
         
         drawChartBar('chartDifficulty', 'Difficulty', data.chart.difficulty.height, data.chart.difficulty.difficulty, null);
         drawChartBar('chartBlockTime', 'BlockTime', data.chart.blockTime.height, data.chart.blockTime.data, data.chart.blockTime.color);
@@ -40,7 +41,7 @@ $(function() {
     });
 
     socket.on('broadcast', function(data) {
-        $('#networkCurrentTx').html(data.txPool);
+        $('#networkCurrentTx').stop(true, true).html(data.txPool);
     });
 
     socket.on('derodag', function(data) {
@@ -67,7 +68,7 @@ $(function() {
             var latency = Date.now() - startTime;
             $('span#myLatency').html(latency+' ms').attr('class', getColorLatency(latency));
         });
-    }, 2000);
+    }, 5000);
 
     function createMap() {
         var width = $('#container').parent().width(),
@@ -218,7 +219,7 @@ $(function() {
            /* if (d != '0') $d.text(d+'d');
             if (h != '0') $d.text(h+ 'h');
             if (m != '0') $d.text(m+ 'm'); */
-            $s.text(s + 's ago');
+            $s.stop(true, true).text(s + 's ago');
             return duration;
         }
         duration = momentNode(duration);
@@ -260,8 +261,8 @@ $(function() {
 
             $('#networkLastBlock').attr('class', 'value-stats '+color);
 
-            if (m != '0') $mLastBlock.text(m+ 'm');
-            $sLastBlock.text(s + 's');
+            if (m != '0') $mLastBlock.stop(true, true).text(m+ 'm');
+            $sLastBlock.stop(true, true).text(s + 's');
             return duration;
         }
 
@@ -423,6 +424,8 @@ $(function() {
     });
 
     function createDeroDag(deroDag) {
+        console.log(deroDag.value);
+        console.dir(deroDag);
         var data = [];
         var blockLink = [];
         var tmp = [];

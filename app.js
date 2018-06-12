@@ -3,7 +3,8 @@
     server = require('http').createServer(app),
     socketIo = require('socket.io'),
     async = require('async'),
-    request = require('request-json');
+    request = require('request-json'),
+    bodyParser = require('body-parser');
 
 
 var MongoClient = require("mongodb").MongoClient;
@@ -11,6 +12,7 @@ var winston = require('winston');
 var mongoDbConnection = require('./lib/mongodb-singleton.js');
 
 app.use(express.static(__dirname + '/public'));
+app.use(bodyParser());
 
 var api = require('./lib/api.js');
 
@@ -18,22 +20,21 @@ global.collectedStats = {};
 global.collectedNodes = {};
 global.deroDag = null;
 global.globalCurrentHeight = 0;
-global.maxHeight = 0;
+
 global.io = socketIo.listen(server);
 
-var giveUpdateSomeone = false;
 var socketRefresh = null;
 var baseBlockPropagation = null;
 var endBlockPropagation = null;
 var hasNewBlock = [];
 var blocktimePropagation = new Map();
+var blockInProgress = [];
 
 const SERVER_PORT = 8080;
-const FIRST_BLOCK = 9550;
 const REFRESH_TIME = '900';
 const API_KEY = 'c3295d20321531f9207bbc435f04971c';
-const IP_BANNED = ['195.154.220.29'];
-const SERVER_VERSION = '0.1';
+const IP_BANNED = [];
+const SERVER_VERSION = '0.2';
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/public/index.html');
@@ -43,30 +44,10 @@ app.get('/json', function (req, res) {
   res.send(JSON.stringify(collectedStats));
 });
 
+require('./lib/website.js');
+
 mongoDbConnection(function(databaseConnection) {
-    databaseConnection.collection("block").find().sort({_id: -1}).limit(1).toArray(function (error, result) {
-        // Check if we have block in database
-        if (!result[0]) {
-            global.globalCurrentHeight = FIRST_BLOCK;
-        } else {
-            global.globalCurrentHeight = result[0].block_header.topoheight;
-        }
-
-        // USER SOCKET ROOM
-        io.of('/website').on('connection', function (socket) { 
-
-            if (collectedStats.hasOwnProperty('get_info')) {
-                socket.emit('daemon', collectedStats);
-            }
-
-            if(deroDag != null) {
-                socket.emit('derodag', deroDag);
-            }
-
-            socket.on('latency', function (startTime, cb) {
-                cb(startTime);
-            });
-        });
+    databaseConnection.collection("block").drop(function (error, delOk) {
 
         // NODE SOCKET ROOM
         io.of('/nodes').on('connection', function (socket) {
@@ -140,6 +121,9 @@ mongoDbConnection(function(databaseConnection) {
 
             socket.on('nodes', function (data) {
                 var ip = socket.handshake.address.substring(7);
+                if (!collectedNodes.hasOwnProperty(ip)) {
+                    return;
+                }
                 data.informations.name = data.informations.name.replace(/[<>\\?!&"'/]*/ig, '');
                 collectedNodes[ip].data = data;
                 collectedNodes[ip].block = globalCurrentHeight;
@@ -160,34 +144,32 @@ mongoDbConnection(function(databaseConnection) {
                     }*/
 
                 }
+
+                askUpdate(data.lastBlockHeader);
                 
-                if (data.lastBlockHeader.topoheight > globalCurrentHeight && data.lastBlockHeader.topoheight - globalCurrentHeight == 1) {
+                if (data.lastBlockHeader.topoheight > globalCurrentHeight) {
+                    // Save the new block
                     // New Block -- save the "base time"
                     baseBlockPropagation = Date.now() - data.latency;
-                    hasNewBlock.push(ip);
+                    //hasNewBlock.push(ip);
                     collectedNodes[ip].propagation = 0;
                     // Recent Block
                     globalCurrentHeight = data.lastBlockHeader.topoheight;
-                    // Ask block_information and store it
-                    socket.emit('block_information', globalCurrentHeight);
                     // Now we need use this informations
                     collectedStats = data;
+                    collectedStats.block_timestamp = (Date.now() / 1000) - data.lastBlockHeader.timestamp;
                     // We have to cancel the last refresh socket
-                    if (socketRefresh !== null) {
+                    /* if (socketRefresh !== null) {
                         socketRefresh.emit('stop-your-refresh', null);
                     }
                     // Your are the faster to have the last block -- you will send broadcast now :)
                     socket.emit('refresh-keep-alive', null);
-                    socketRefresh = socket;
+                    socketRefresh = socket; */
                 } else if (data.lastBlockHeader.topoheight >= globalCurrentHeight && !collectedStats.hasOwnProperty('get_info')) {
                     // Start daemon we need some informations
                     collectedStats = data;
                     api.getChart();
-                } else if (data.lastBlockHeader.topoheight > globalCurrentHeight) {
-                    // Synchronised DB 
-                    // Je dois lui dire de m'envoyer les blocs
-                    maxHeight = data.lastBlockHeader.topoheight;
-                    askUpdate(maxHeight);
+                    //api.getDeroDag();
                 }
 
                 // Send to website
@@ -202,36 +184,49 @@ mongoDbConnection(function(databaseConnection) {
             });
 
             socket.on('update_block', function(data) {
-                mongoDbConnection(function(databaseConnection) {
-                    databaseConnection.collection("block").insert(data.getblock, null, function (error, results) {
-                        if (error) throw error;
-                        winston.log('info', 'api -- Block '+data.getblock.block_header.topoheight+' enregistré.');
-                        var query = { "block_header.topoheight": data.getblock.block_header.topoheight - 50 };
-                        databaseConnection.collection("block").remove(query, function (err, obj) {
-                            if (obj.result.n > 0) {
-                                winston.log('info', 'api -- Block ' + (data.getblock.block_header.topoheight-50) + ' deleted.');
-                            }
+                if (!blockAlreadyExist(data.getBlockHeader.block_header.hash)) {
+                    mongoDbConnection(function(databaseConnection) {
+                        databaseConnection.collection("block").insert(data.getBlockHeader, null, function (error, results) {
+                            if (error) throw error;
+                            winston.log('info', 'api -- Block '+data.getBlockHeader.block_header.topoheight+' saved.');
+                            var query = { "block_header.topoheight": data.getBlockHeader.block_header.topoheight - 50 };
+                            databaseConnection.collection("block").remove(query, function (err, obj) {
+                                if (obj.result.n > 0) {
+                                    winston.log('info', 'api ---------- Block ' + (data.getBlockHeader.block_header.topoheight-50) + ' deleted.');
+                                    blockInProgress.splice(0, 1);
+                                }
+                            });
+                            api.getChart();
+                            api.getDeroDag();
                         });
-                        collectedStats.block_timestamp = (Date.now() / 1000) - data.getblock.block_header.timestamp;
-                        // I need refresh chart
-                        api.getChart();
-                        if (giveUpdateSomeone) {
-                            giveUpdateSomeone = false;
-                            askUpdate(maxHeight);
-                        }
-                        api.getDeroDag();
                     });
-                });
+                }
             });
 
-            function askUpdate(height) {
-                if (!giveUpdateSomeone && height > globalCurrentHeight) {
-                    giveUpdateSomeone = true;
-                    globalCurrentHeight++;
-                    socket.emit('block_information', globalCurrentHeight);
-                }
+            function askUpdate(block_header) {
+
+                block_header.tips.forEach(function (hash, index) {
+                    if (!blockAlreadyExist(hash) && blockInProgress.indexOf(hash) === -1 && (globalCurrentHeight - block_header.topoheight) < 50) {
+                        blockInProgress.push(hash);
+                        socket.emit('block_information', hash);
+                    }
+                });
+
+                /*if (!blockAlreadyExist(block_header.hash)) {
+                    socket.emit('block_information', block_header.hash);
+                }*/
             }
+
         });
+
+        function blockAlreadyExist(hash) {
+        	mongoDbConnection(function(databaseConnection) {
+        		databaseConnection.collection("block").findOne({"block_header.hash" : hash }, function(error, result) {
+        			return !result;
+        		});
+        	});
+        }
+        
     });
 });
 

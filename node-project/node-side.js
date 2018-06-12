@@ -7,7 +7,7 @@ const readline = require('readline');
 
 // Don't modify this URL
 const serverURL = 'http://54.37.72.72:8080/nodes';
-const VERSION = '0.1';
+const VERSION = '0.2';
 
 var config = null;
 var socket = null;
@@ -57,14 +57,14 @@ function init() {
 		timeout = setTimeout(broadcastDaemon, refreshTime);
 	});
 
-	socket.on('block_information', function(height) {
+	socket.on('block_information', function(hash) {
 		async.parallel({ 
-			getblock: function(callback) {
+			getBlockHeader: function(callback) {
 				var paramsRequest = {
 				  "jsonrpc": '2.0',
 				  "id": 0,
-				  "method": "getblock",
-				  "params": { "height": height }
+				  "method": "getblockheaderbyhash",
+				  "params": { "hash": hash }
 				};
 				var client = request.createClient(config.myDaemon);
 			    client.headers['Content-Type'] = 'application/json';
@@ -148,9 +148,11 @@ function broadcastDaemon() {
                 var blockHeader = body.result.block_header;
                 callback(null, {
                     difficulty: blockHeader.difficulty,
+                    hash: blockHeader.hash,
                     height: blockHeader.height,
                     topoheight: blockHeader.topoheight,
                     timestamp: blockHeader.timestamp,
+                    tips: blockHeader.tips,
                     reward: blockHeader.reward
                 });
             });
