@@ -392,7 +392,7 @@ $(function() {
               x = rows[i].getElementsByTagName("TD")[n].innerHTML.toLowerCase();
               y = rows[i + 1].getElementsByTagName("TD")[n].innerHTML.toLowerCase();
 
-              if (n == 1 || n == 5) {
+              if (n == 1 || n == 3 || n == 8) {
                 ///[A-Z]*[a-z]* * [<->\"]*/gi
                 // number comparaison - ms column
                 var x = parseInt(x.replace(/[A-Za-z]*[<>\"=/ -]*/gi,''));
