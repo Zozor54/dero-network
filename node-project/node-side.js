@@ -7,7 +7,7 @@ const readline = require('readline');
 
 // Don't modify this URL
 const serverURL = 'http://54.37.72.72:8080/nodes';
-const VERSION = '0.2';
+const VERSION = '0.3';
 
 var config = null;
 var socket = null;
@@ -51,8 +51,9 @@ function init() {
     });
 
 	socket.on('refreshTime', function(interval) {
-		console.log('new refresh time '+interval);
+		console.log('--- New refresh time '+interval);
 		if (timeout) clearTimeout(timeout);
+		if (intervalRefresh) clearInterval(intervalRefresh);
 		refreshTime = interval;
 		timeout = setTimeout(broadcastDaemon, refreshTime);
 	});
@@ -79,6 +80,7 @@ function init() {
 	});
 
 	socket.on('refresh-keep-alive', function() {
+		getInfoFromDaemon();
 		intervalRefresh = setInterval(function() {
 			getInfoFromDaemon();
 		}, 4000);
@@ -91,6 +93,40 @@ function init() {
 	socket.on('banned', function (reason) {
 		console.error('BANNED -- '+reason);
 		return process.exit(22);
+	});
+
+	socket.on('security-check', function (hash) {
+		console.log('Security check asked');
+		var paramsRequest = {
+		  "jsonrpc": '2.0',
+		  "id": 0,
+		  "method": "getblockheaderbyhash",
+		  "params": { "hash": hash }
+		};
+		var client = request.createClient(config.myDaemon);
+	    client.headers['Content-Type'] = 'application/json';
+	    client.post('json_rpc', paramsRequest, function(err, res, body) {
+	    	if (body === undefined) {
+	    		console.error('Error : The daemon did not respond or the data verification failed');
+	    		process.exit(22);
+	    	}
+
+	        var info = (body.result !== undefined ? body.result : body);
+	        socket.emit('security-check', info);
+	    });
+	});
+
+	socket.on('security-result', function(state) {
+		switch (state) {
+			case "SUCCESS": {
+				console.log('Security checks completed. Welcome.');
+				break;
+			}
+			case "WAITING": {
+				console.log('You seem to be in sync. The security check is currently in progress. A new control will soon be realized');
+				break;
+			}
+		}
 	});
 
 }

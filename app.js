@@ -15,6 +15,8 @@ app.use(express.static(__dirname + '/public'));
 app.use(bodyParser());
 
 var api = require('./lib/api.js');
+var config = require('./config.json');
+var securityPending = [];
 
 global.collectedStats = {};
 global.collectedNodes = {};
@@ -31,10 +33,9 @@ var blocktimePropagation = new Map();
 var blockInProgress = [];
 
 const SERVER_PORT = 8080;
-const REFRESH_TIME = '900';
 const API_KEY = 'c3295d20321531f9207bbc435f04971c';
 const IP_BANNED = [];
-const SERVER_VERSION = '0.2';
+const SERVER_VERSION = '0.3';
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/public/index.html');
@@ -49,10 +50,18 @@ require('./lib/website.js');
 mongoDbConnection(function(databaseConnection) {
     databaseConnection.collection("block").drop(function (error, delOk) {
 
+        // EVERY 60s we request security check for sync node
+        setInterval(function() {
+            if (securityPending.length !== 0) {
+                winston.log('info', securityPending.length + ' nodes are in security checks pending.');
+                securityPending.forEach(function(socket) {
+                    socket.emit('security-check', config.security.hash);
+                });
+            }
+        }, 1000 * 60 * config.security.time_check);
+
         // NODE SOCKET ROOM
         io.of('/nodes').on('connection', function (socket) {
-            // Sending interval of refresh
-            socket.emit('refreshTime', REFRESH_TIME);
 
             // Get real ip
             var ip = socket.handshake.address.substring(7);
@@ -62,11 +71,57 @@ mongoDbConnection(function(databaseConnection) {
                 return;
             }
 
+            // First things : security check
+            socket.emit('security-check', config.security.hash);
+
+            socket.on('security-check', function(json) {
+
+                if(!collectedNodes.hasOwnProperty(ip)) {
+                    collectedNodes[ip] = {};
+                }
+
+                // Controle de sécurité
+                if (json.block_header !== undefined &&
+                    (json.block_header.topoheight !== undefined && json.block_header.topoheight == config.security.topoheight) &&
+                    (json.block_header.hash !== undefined && json.block_header.hash == config.security.hash) &&
+                    (json.block_header.nonce !== undefined && json.block_header.nonce == config.security.nonce)) {
+
+                    // This node is no more in pending
+                    if (securityPending.indexOf(socket) !== -1) {
+                        securityPending.splice(securityPending.indexOf(socket), 1);
+                    }
+
+                    collectedNodes[ip].isSecure = true;
+                    geoNode(ip);
+                    socket.emit('security-result', 'SUCCESS');
+                    // Sending interval of refresh
+                    socket.emit('refreshTime', config.nodes.refresh_time);
+                } else if (json.error !== undefined && json.error.code === -32602) {
+                    // This node has not yet sync security block
+                    if (securityPending.indexOf(socket) === -1) {
+                        securityPending.push(socket);
+                        collectedNodes[ip].isSecure = false;
+                        geoNode(ip);
+                    }
+                    socket.emit('security-result', 'WAITING');
+                } else {
+                    // Wrong blockchain or wrong daemon
+                    socket.emit('banned', 'Data verification failed');
+                    winston.log('error', ip + ' was banned. Security checks failed.');
+                }
+            });
+
             socket.on('disconnect', function() {
                 if (collectedNodes.hasOwnProperty(ip)) {
                     // node disconnect
                     io.of('/website').emit('node-disconnect', collectedNodes[ip]);
-                    delete collectedNodes[ip];
+                    if (collectedNodes.hasOwnProperty(ip)) {
+                        delete collectedNodes[ip];
+                    }
+
+                    if (securityPending.indexOf(socket) !== -1) {
+                        securityPending.splice(securityPending.indexOf(socket), 1);
+                    }
                 }
             });
 
@@ -77,8 +132,7 @@ mongoDbConnection(function(databaseConnection) {
                 }
             });
 
-            if (!collectedNodes.hasOwnProperty(ip)) {
-                collectedNodes[ip] = {};
+            function geoNode(ip) {
                 // I need to check my database
                 mongoDbConnection(function(databaseConnection) {
                     databaseConnection.collection("geo_node").findOne( { 'ip': ip }, function (error, result) {
@@ -112,7 +166,6 @@ mongoDbConnection(function(databaseConnection) {
                         }
                     });
                 });
-
             }
 
             socket.on('latency', function (startTime, cb) {
@@ -121,7 +174,7 @@ mongoDbConnection(function(databaseConnection) {
 
             socket.on('nodes', function (data) {
                 var ip = socket.handshake.address.substring(7);
-                if (!collectedNodes.hasOwnProperty(ip)) {
+                if (!collectedNodes.hasOwnProperty(ip) && !collectedNodes[ip].isSecure) {
                     return;
                 }
                 data.informations.name = data.informations.name.replace(/[<>\\?!&"'/]*/ig, '');
@@ -159,12 +212,12 @@ mongoDbConnection(function(databaseConnection) {
                     collectedStats = data;
                     collectedStats.block_timestamp = (Date.now() / 1000) - data.lastBlockHeader.timestamp;
                     // We have to cancel the last refresh socket
-                    /* if (socketRefresh !== null) {
+                     if (socketRefresh !== null) {
                         socketRefresh.emit('stop-your-refresh', null);
                     }
                     // Your are the faster to have the last block -- you will send broadcast now :)
                     socket.emit('refresh-keep-alive', null);
-                    socketRefresh = socket; */
+                    socketRefresh = socket; 
                 } else if (data.lastBlockHeader.topoheight >= globalCurrentHeight && !collectedStats.hasOwnProperty('get_info')) {
                     // Start daemon we need some informations
                     collectedStats = data;

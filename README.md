@@ -20,13 +20,25 @@
 
 You need configure apps.js ; edit this file :
 ```javascript
-const SERVER_PORT = 8080; // Port for express
-const FIRST_BLOCK = 83000; // First time this script will start at this block number and store data block in mongoDB.
-const REFRESH_TIME = ‘500’; // in milliseconds - Nodes side will check their own daemon every REFRESH_TIME
 const API_KEY = ‘c3295d20321531f9207bbc435f04971c’; // This API is used to geolocate nodes during their first connection. 
 const SERVER_PORT = 8080; // Port for express
 ```
 
+and config.json for security check :
+
+```javascript
+{
+	"security": {
+		"time_check": 30, // Time between every check security -- in minutes
+		"topoheight": 8,
+		"hash": "59521f49fbdd2c6a3cdaaff8c287ce408b0e437dbd622e1381640014fdcb9c78",
+		"nonce": 2302413880
+	},
+	"nodes": {
+		"refresh_time": 900 // Time between every daemon request -- in milliseconds
+	}
+}
+```
 
 ### Node Side
 

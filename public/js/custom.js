@@ -14,6 +14,22 @@ $(function() {
     // Connexion à socket.io
     var socket = io.connect('/website');
 
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+            if (socket.connected) {
+                clearInterval(intervalLastBlock);
+                for (var node in nodes) {
+                    clearInterval(nodes[node].interval);
+                } 
+                socket.close();
+            }      
+        } else {
+            if (!socket.connected) {
+                socket.open();
+            }
+        }
+    }, false);
+
     socket.on('daemon', function(data) {
         $('#networkBlockHeight').html(data.lastBlockHeader.height + ' / ' + data.lastBlockHeader.topoheight);
         $('#networkDifficulty').html(getReadableHashRateString(data.lastBlockHeader.difficulty));
@@ -23,7 +39,7 @@ $(function() {
         $('#networkLastReward').html(Math.round(data.lastBlockHeader.reward / coinUnits * 100) / 100);
         $('#networkAVGBlockTime').html(data.chart.avgBlockTime + 's');
         $('#networkCurrentTx').html(data.get_info.txPool);
-        $('#networkAvgTx').html(' / ' +data.chart.avgTransactions);
+        $('#networkAvgTx').html(data.chart.avgTransactions);
         
         drawChartBar('chartDifficulty', 'Difficulty', data.chart.difficulty.height, data.chart.difficulty.difficulty, null);
         drawChartBar('chartBlockTime', 'BlockTime', data.chart.blockTime.height, data.chart.blockTime.data, data.chart.blockTime.color);
@@ -64,10 +80,12 @@ $(function() {
     });
 
     setInterval(function() {
-        socket.emit('latency', Date.now(), function(startTime) {
-            var latency = Date.now() - startTime;
-            $('span#myLatency').html(latency+' ms').attr('class', getColorLatency(latency));
-        });
+        if (socket.connected) {
+            socket.emit('latency', Date.now(), function(startTime) {
+                var latency = Date.now() - startTime;
+                $('span#myLatency').html(latency+' ms').attr('class', getColorLatency(latency));
+            });
+        }
     }, 5000);
 
     function createMap() {
@@ -424,8 +442,6 @@ $(function() {
     });
 
     function createDeroDag(deroDag) {
-        console.log(deroDag.value);
-        console.dir(deroDag);
         var data = [];
         var blockLink = [];
         var tmp = [];

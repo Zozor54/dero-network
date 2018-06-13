@@ -1,0 +1,11 @@
+{
+	"security": {
+		"time_check": 30,
+		"topoheight": 8,
+		"hash": "59521f49fbdd2c6a3cdaaff8c287ce408b0e437dbd622e1381640014fdcb9c78",
+		"nonce": 2302413880
+	},
+	"nodes": {
+		"refresh_time": 900 
+	}
+}
