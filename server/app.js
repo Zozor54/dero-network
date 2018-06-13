@@ -11,7 +11,7 @@ var MongoClient = require("mongodb").MongoClient;
 var winston = require('winston');
 var mongoDbConnection = require('./lib/mongodb-singleton.js');
 
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/website'));
 app.use(bodyParser());
 
 var api = require('./lib/api.js');
@@ -38,7 +38,7 @@ const IP_BANNED = [];
 const SERVER_VERSION = '0.3';
 
 app.get('/', function (req, res) {
-  res.sendfile(__dirname + '/public/index.html');
+  res.sendfile(__dirname + '/website/index.html');
 });
 
 app.get('/json', function (req, res) {
