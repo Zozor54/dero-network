@@ -101,18 +101,6 @@ In cert bot similarly (sudo certbot --nginx -d test.supportdero.com -d test2.sup
 
 Let’s Encrypt’s certificates are only valid for ninety days. This is to encourage users to automate their certificate renewal process. The certbot package we installed takes care of this for us by running ‘certbot renew’ twice a day via a systemd timer. On non-systemd distributions this functionality is provided by a script placed in /etc/cron.d. This task runs twice a day and will renew any certificate that’s within thirty days of expiration.
 
-If you want to completely hide the backend, you can add the following at the end of `/etc/nginx/sites-available/default`
-
-```
-server {
-    listen 8080 default_server;
-    listen [::]:8080 default_server;
-    root /var/www/html;
-    server_name _;
-    location / {
-            proxy_pass http://127.0.0.1:8080;
-    }
-```
 
 
 ## Credits
