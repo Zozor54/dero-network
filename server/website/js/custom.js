@@ -11,6 +11,9 @@ $(function() {
     var $mLastBlock = $('#networkLastBlock > span.minutes'),
         $sLastBlock = $('#networkLastBlock > span.seconds');
     var intervalLastBlock = null;
+
+    $('[data-toggle="tooltip"]').tooltip();
+
     // Connexion à socket.io
     var socket = io.connect('/website');
 
@@ -172,15 +175,20 @@ $(function() {
     function updateNode(node) {
         if (!nodes.hasOwnProperty(node.data.informations.name)) {
             // Create new node
-            var sNewNode = '<tr nodeName="'+node.data.informations.name+'" class="text-center"><td scope="row" name="node"></td><td name="latency"></td><td name="height"></td><td name="propagation"></td><td name="peers_inc"></td><td name="peers_out"></td><td name="version"></td><td name="updated"><span class="seconds" ></span><span class="milliseconds" ></span></td></tr>';
+            var sNewNode = '<tr nodeName="'+node.data.informations.name+'" class="text-center"><td scope="row" class="pointer" name="node" data-toggle="tooltip" data-placement="top"></td><td name="latency"></td><td name="height"></td><td name="propagation"></td><td name="peers_inc"></td><td name="peers_out"></td><td name="version"></td><td name="updated"><span class="seconds" ></span><span class="milliseconds" ></span></td></tr>';
             $('#rowNodes').append(sNewNode);
+            $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="node"]').html(node.data.informations.name);
+            if (node.data.informations.hasOwnProperty('description') && node.data.informations.description.length > 0) {
+                $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="node"]').attr('title', node.data.informations.description)
+                $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="node"]').tooltip();
+            }
+            $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="version"]').html(node.data.get_info.version);
             nodes[node.data.informations.name] = {};
         }
         var oColor = getBlockColor(node.data.lastBlockHeader.topoheight, currentHeight);
         // Update
        // $('#rowNodes > tr[nodeName="' + node.name + '"]').css('color', (node.isOnline ? '#7bcc3a' : 'red'));
         $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"]').attr('class', 'text-center '+oColor.text);
-        $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="node"]').html(node.data.informations.name);
         $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="latency"]').html(node.data.latency+' ms').attr('class', getColorLatency(node.data.latency));
         $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="height"]').html(node.data.lastBlockHeader.height + ' / ' + node.data.lastBlockHeader.topoheight);
         if (!isNaN(node.propagation)) {
@@ -190,7 +198,7 @@ $(function() {
     	}
         $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="peers_inc"]').html(node.data.get_info.incoming_connections);
         $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="peers_out"]').html(node.data.get_info.outgoing_connections);
-        $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="version"]').html(node.data.get_info.version);
+
         /*if (node.isOnline || $('#rowNodes > tr[nodeName="' + node.name + '"] > td[name="updated"] > span.seconds').html() == '') {
             createMoment(node);
         } */

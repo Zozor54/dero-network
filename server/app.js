@@ -178,6 +178,7 @@ mongoDbConnection(function(databaseConnection) {
                     return;
                 }
                 data.informations.name = data.informations.name.replace(/[<>\\?!&"'/]*/ig, '');
+                data.informations.description = data.informations.name.replace(/[<>\\?!&"'/]*/ig, '');
                 collectedNodes[ip].data = data;
                 collectedNodes[ip].block = globalCurrentHeight;
 

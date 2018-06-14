@@ -3,7 +3,7 @@ var request = require('request-json');
 var socketIo = require('socket.io-client');
 //var config = require('./config.json');
 var fs = require('fs');
-const readline = require('readline');
+var readlineSync = require('readline-sync');
 
 // Don't modify this URL
 const serverURL = 'http://54.37.72.72:8080/nodes';
@@ -18,30 +18,32 @@ var intervalRefresh = null;
 
 if (!fs.existsSync('config.json')) {
 	var configFile = {};
-	const rl = readline.createInterface({
-	  input: process.stdin,
-	  output: process.stdout
-	});
 
 	configFile.myDaemon = "http://127.0.0.1:30306";
-	rl.question('What is the public name of your node? ', (name) => {
-		configFile.myName = name;
-		rl.close();
-		fs.writeFile("config.json", JSON.stringify(configFile), 'utf8', function(err) {
-		    if(err) {
-		        return console.log(err);
-		    }
+	var name = readlineSync.question('What is the public name of your node?');
+	while (name.length < 3 || name.length > 24) {
+		name = readlineSync.question('What is the public name of your node? (3 charac min - 24 max)');
+	}
+	configFile.myName = name;
+	var description = readlineSync.question('What is your public node description? ');
+	while (description.length > 512) {
+		description = readlineSync.question('What is your public node description? (512 charac max)');
+	}
+	configFile.myDescription = description;
+	fs.writeFile("config.json", JSON.stringify(configFile), 'utf8', function(err) {
+	    if(err) {
+	        return console.log(err);
+	    }
 
-		    console.log("Config.json created.");
-		    config = JSON.parse(fs.readFileSync('config.json'));
-			init();
-		});
+	    console.log("Config.json created.");
+	    config = JSON.parse(fs.readFileSync('config.json'));
+		init();
 	});
+
 } else {
 	config = JSON.parse(fs.readFileSync('config.json'));
 	init();
 }
-
 
 function init() {
 	socket = socketIo.connect(serverURL);
@@ -196,7 +198,8 @@ function broadcastDaemon() {
 		informations: function(callback) {
 			callback(null, {
 				'updated': Date.now(),
-				'name': config.myName
+				'name': config.myName,
+				'description': config.myDescription
 			 });
 		}
 	}, function (error, result) {

@@ -15,6 +15,10 @@
             font-family: Source Sans Pro,sans-serif;
         }
 
+        .container-fluid {
+            overflow: auto;
+        }
+
         .col-xl-2, .col-xl-4, col-6 {
             padding: 0;
         }
@@ -171,6 +175,26 @@
             min-height: 200px;
         }
 
+        .tooltip-inner {
+            color: #000;
+            text-align: center;
+            border-radius: .25rem;
+            font-size: 12px;
+            font-weight: 600;
+            background-color: #fff;
+        }
+
+        .tooltip.bs-tooltip-auto[x-placement^=top] .arrow::before, .tooltip.bs-tooltip-top .arrow::before {
+            margin-left: -3px;
+            content: "";
+            border-width: 5px 5px 0;
+            border-top-color: #fff;
+        }
+
+        .pointer {
+            cursor: pointer;
+        }
+
     </style>
 </head>
 
@@ -300,7 +324,7 @@
             <table id="nodesTable" class="table table-striped">
                 <thead>
                     <tr class="text-center">
-                        <th><span data-toggle="tooltip" data-placement="top" title="Node"><i class="fas fa-laptop"></i></span></th>
+                        <th><span data-toggle="tooltip" data-placement="top" title="Nodes' name"><i class="fas fa-laptop"></i></span></th>
                         <th>Latency</th>
                         <th>Height/Topo</th>
                         <th>Block Propagation</th>
