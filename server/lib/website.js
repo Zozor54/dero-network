@@ -1,5 +1,11 @@
+var nUserConnected = 0;
 
 io.of('/website').on('connection', function (socket) { 
+	nUserConnected++;
+
+	socket.on('disconnect', function (socket) {
+		nUserConnected--;
+	});
 
     if (collectedStats.hasOwnProperty('get_info')) {
         socket.emit('daemon', collectedStats);
@@ -16,7 +22,7 @@ io.of('/website').on('connection', function (socket) {
     }
 
     socket.on('latency', function (startTime, cb) {
-        cb(startTime);
+        cb({ startTime: startTime, userConnected: nUserConnected });
     });
     
 });

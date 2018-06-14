@@ -81,9 +81,10 @@ $(function() {
 
     setInterval(function() {
         if (socket.connected) {
-            socket.emit('latency', Date.now(), function(startTime) {
-                var latency = Date.now() - startTime;
+            socket.emit('latency', Date.now(), function(object) {
+                var latency = Date.now() - object.startTime;
                 $('span#myLatency').html(latency+' ms').attr('class', getColorLatency(latency));
+                $('span#userConnected').html(object.userConnected);
             });
         }
     }, 5000);
