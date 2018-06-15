@@ -80,6 +80,9 @@ $(function() {
         mapNode = mapNode.filter(nodeBubble => nodeBubble.id != node.data.informations.id);
         updateBubbles();
         delete nodes[node.data.informations.id];
+        if (allChart.hasOwnProperty(node.data.informations.id)) {
+        	delete allChart[node.data.informations.id];
+        }
     });
 
     setInterval(function() {
