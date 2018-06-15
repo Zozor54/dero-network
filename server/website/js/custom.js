@@ -53,7 +53,7 @@ $(function() {
         currentHeight = data.lastBlockHeader.topoheight;
         for (var node in nodes) {
 		  if (nodes[node].data.data.informations.name != data.informations.name) {
-        		updateNode(nodes[node].data);
+        		updateNode(nodes[node].data, true);
         	}
 		} 
         //chartDifficulty(data.chart.difficulty);    
@@ -68,7 +68,7 @@ $(function() {
     });
 
     socket.on('node', function (data) {
-        updateNode(data);
+        updateNode(data, false);
     });
 
     socket.on('node-disconnect', function(node) {
@@ -175,7 +175,7 @@ $(function() {
         });
     }
 
-    function updateNode(node) {
+    function updateNode(node, forceUpdate) {
         if (!nodes.hasOwnProperty(node.data.informations.id)) {
             // Create new node
             var sNewNode = '<tr nodeName="'+node.data.informations.id+'" class="text-center"><td scope="row" class="pointer" name="node" data-toggle="tooltip" data-placement="top"></td><td name="latency"></td><td name="height"></td><td name="propagation"></td><td name="peers_inc"></td><td name="peers_out"></td><td name="version"></td><td name="history"></td><td name="average"></td><td name="updated"><span class="seconds" ></span><span class="milliseconds" ></span></td></tr>';
@@ -195,24 +195,24 @@ $(function() {
         // Update
        // $('#rowNodes > tr[nodeName="' + node.name + '"]').css('color', (node.isOnline ? '#7bcc3a' : 'red'));
         $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"]').attr('class', 'text-center '+oColor.text);
-        $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="latency"]').html(node.data.latency+' ms').attr('class', getColorLatency(node.data.latency));
-        $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="height"]').html(node.data.lastBlockHeader.height + ' / ' + node.data.lastBlockHeader.topoheight);
-        if (!isNaN(node.propagation.lastBlock)) {
-        	$('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="propagation"]').html(node.propagation.lastBlock+ ' ms');
-            drawNodeChart(node.data.informations, node.propagation.historyData, node.propagation.historyLabels, node.propagation.historyColors);
-            $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="average"]').attr('class', getColorBlockTime(node.propagation.average)).html(node.propagation.average+ ' ms');
-    	} else {
-    		$('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="propagation"]').html('-');
-    		$('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="history"]').html('-');
-    		$('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="average"]').html('-');
-    	}
-        $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="peers_inc"]').html(node.data.get_info.incoming_connections);
-        $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="peers_out"]').html(node.data.get_info.outgoing_connections);
 
-        /*if (node.isOnline || $('#rowNodes > tr[nodeName="' + node.name + '"] > td[name="updated"] > span.seconds').html() == '') {
+        if (!forceUpdate) {
+            $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="latency"]').html(node.data.latency+' ms').attr('class', getColorLatency(node.data.latency));
+            $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="height"]').html(node.data.lastBlockHeader.height + ' / ' + node.data.lastBlockHeader.topoheight);
+            if (!isNaN(node.propagation.lastBlock)) {
+            	$('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="propagation"]').html(node.propagation.lastBlock+ ' ms');
+                drawNodeChart(node.data.informations, node.propagation.historyData, node.propagation.historyLabels, node.propagation.historyColors);
+                $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="average"]').attr('class', getColorBlockTime(node.propagation.average)).html(node.propagation.average+ ' ms');
+        	} else {
+        		$('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="propagation"]').html('-');
+        		$('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="history"]').html('-');
+        		$('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="average"]').html('-');
+        	}
+            $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="peers_inc"]').html(node.data.get_info.incoming_connections);
+            $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="peers_out"]').html(node.data.get_info.outgoing_connections);
+
             createMoment(node);
-        } */
-        createMoment(node);
+        }
 
         if (map !== null) {
             var bubble = {};
