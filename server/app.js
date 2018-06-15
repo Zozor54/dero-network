@@ -181,7 +181,7 @@ mongoDbConnection(function(databaseConnection) {
 
             socket.on('nodes', function (data) {
                 var ip = socket.handshake.address.substring(7);
-                if (!collectedNodes.hasOwnProperty(ip) && !collectedNodes[ip].isSecure) {
+                if (!collectedNodes.hasOwnProperty(ip) || !collectedNodes[ip].hasOwnProperty('isSecure') || !collectedNodes[ip].isSecure) {
                     return;
                 }
                 data.informations.id = socket.myId;
@@ -293,7 +293,7 @@ mongoDbConnection(function(databaseConnection) {
             }
              
             collectedNodes[ip].propagation.lastBlock = myPropagation;
-            if (collectedNodes[ip].propagation.historyData.length > 50) {
+            if (collectedNodes[ip].propagation.historyData.length > 8) {
                 collectedNodes[ip].propagation.historyData.splice(0, 1);
                 collectedNodes[ip].propagation.historyLabels.splice(0, 1);
                 collectedNodes[ip].propagation.historyColors.splice(0, 1);

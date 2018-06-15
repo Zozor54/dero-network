@@ -568,6 +568,7 @@ $(function() {
                 }]
             },
             options: {
+            	//animation: false,
                 segmentShowStroke: false,
                maintainAspectRatio: false,
                 legend: {
