@@ -188,9 +188,7 @@ $(function() {
             $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="version"]').html(node.data.get_info.version);
             nodes[node.data.informations.id] = {};
         }
-        if ($('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="version"]').html() !== node.data.get_info.version) {
-        	$('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="version"]').html(node.data.get_info.version);
-        }
+        
         var oColor = getBlockColor(node.data.lastBlockHeader.topoheight, currentHeight);
         // Update
        // $('#rowNodes > tr[nodeName="' + node.name + '"]').css('color', (node.isOnline ? '#7bcc3a' : 'red'));
@@ -210,7 +208,10 @@ $(function() {
         	}
             $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="peers_inc"]').html(node.data.get_info.incoming_connections);
             $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="peers_out"]').html(node.data.get_info.outgoing_connections);
-
+            
+            if ($('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="version"]').html() !== node.data.get_info.version) {
+                $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="version"]').html(node.data.get_info.version);
+            }
             createMoment(node);
         }
 
