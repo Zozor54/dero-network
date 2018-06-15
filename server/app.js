@@ -186,7 +186,7 @@ mongoDbConnection(function(databaseConnection) {
                 }
                 data.informations.id = socket.myId;
                 data.informations.name = data.informations.name.replace(/[<>\\?!&"'/]*/ig, '');
-                data.informations.description = data.informations.name.replace(/[<>\\?!&"'/]*/ig, '');
+                data.informations.description = data.informations.description.replace(/[<>\\?!&"'/]*/ig, '');
                 collectedNodes[ip].data = data;
                 collectedNodes[ip].block = globalCurrentHeight;
 
