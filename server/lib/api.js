@@ -2,11 +2,12 @@ var async = require('async');
 var mongoDbConnection = require('./mongodb-singleton.js');
 var winston = require('winston');
 
-const reducer = (accumulator, currentValue) => accumulator + currentValue;
-
 const colorRed = '#f74b4b';
 const colorOrange = '#ff8a00';
 const colorGreen = '#7bcc3a';
+const colorBlue = '#10a0de';
+const colorYellow = '#ffd162';
+
 const targetTime = 9;
 const targetTimeHigh = 27;
 
@@ -92,6 +93,13 @@ module.exports= {
 
 			});
 		});
+	},
+	getColorPropagation: function(blockPropagation) {
+		if (blockPropagation === 0) return colorBlue;
+		else if (blockPropagation < 500) return colorGreen;
+		else if (blockPropagation < 1500) return colorYellow;
+		else if (blockPropagation < 2500) return colorOrange;
+		else return colorRed;
 	}
 }
 

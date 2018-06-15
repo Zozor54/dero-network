@@ -44,10 +44,10 @@ $(function() {
         $('#networkCurrentTx').html(data.get_info.txPool);
         $('#networkAvgTx').html(data.chart.avgTransactions);
         
-        drawChartBar('chartDifficulty', 'Difficulty', data.chart.difficulty.height, data.chart.difficulty.difficulty, null);
-        drawChartBar('chartBlockTime', 'BlockTime', data.chart.blockTime.height, data.chart.blockTime.data, data.chart.blockTime.color);
-        drawChartBar('chartTransactions', 'Transactions', data.chart.difficulty.height, data.chart.transactions, null);
-        drawChartBar('chartBlockPropagation', 'Block', data.chart.difficulty.height, data.chart.transactions, null);
+        drawChartBar($('#chartDifficulty'), 'Difficulty', data.chart.difficulty.height, data.chart.difficulty.difficulty, null);
+        drawChartBar($('#chartBlockTime'), 'BlockTime', data.chart.blockTime.height, data.chart.blockTime.data, data.chart.blockTime.color);
+        drawChartBar($('#chartTransactions'), 'Transactions', data.chart.difficulty.height, data.chart.transactions, null);
+        drawChartBar($('#chartBlockPropagation'), 'Block', data.chart.difficulty.height, data.chart.transactions, null);
         lastBlockMoment(data.block_timestamp);
 
         currentHeight = data.lastBlockHeader.topoheight;
@@ -73,13 +73,13 @@ $(function() {
 
     socket.on('node-disconnect', function(node) {
         // Remove node
-        $('tr[nodeName="'+node.data.informations.name+'"]').remove();
+        $('tr[nodeName="'+node.data.informations.id+'"]').remove();
         // Clear interval
-        clearInterval(nodes[node.data.informations.name].interval);
+        clearInterval(nodes[node.data.informations.id].interval);
         // Remove from map
-        mapNode = mapNode.filter(nodeBubble => nodeBubble.name != node.data.informations.name);
+        mapNode = mapNode.filter(nodeBubble => nodeBubble.id != node.data.informations.id);
         updateBubbles();
-        delete nodes[node.data.informations.name];
+        delete nodes[node.data.informations.id];
     });
 
     setInterval(function() {
@@ -173,31 +173,35 @@ $(function() {
     }
 
     function updateNode(node) {
-        if (!nodes.hasOwnProperty(node.data.informations.name)) {
+        if (!nodes.hasOwnProperty(node.data.informations.id)) {
             // Create new node
-            var sNewNode = '<tr nodeName="'+node.data.informations.name+'" class="text-center"><td scope="row" class="pointer" name="node" data-toggle="tooltip" data-placement="top"></td><td name="latency"></td><td name="height"></td><td name="propagation"></td><td name="peers_inc"></td><td name="peers_out"></td><td name="version"></td><td name="updated"><span class="seconds" ></span><span class="milliseconds" ></span></td></tr>';
+            var sNewNode = '<tr nodeName="'+node.data.informations.id+'" class="text-center"><td scope="row" class="pointer" name="node" data-toggle="tooltip" data-placement="top"></td><td name="latency"></td><td name="height"></td><td name="propagation"></td><td name="peers_inc"></td><td name="peers_out"></td><td name="version"></td><td name="history"></td><td name="average"></td><td name="updated"><span class="seconds" ></span><span class="milliseconds" ></span></td></tr>';
             $('#rowNodes').append(sNewNode);
-            $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="node"]').html(node.data.informations.name);
+            $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="node"]').html(node.data.informations.name);
             if (node.data.informations.hasOwnProperty('description') && node.data.informations.description.length > 0) {
-                $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="node"]').attr('title', node.data.informations.description)
-                $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="node"]').tooltip();
+                $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="node"]').attr('title', node.data.informations.description)
+                $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="node"]').tooltip();
             }
-            $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="version"]').html(node.data.get_info.version);
-            nodes[node.data.informations.name] = {};
+            $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="version"]').html(node.data.get_info.version);
+            nodes[node.data.informations.id] = {};
         }
         var oColor = getBlockColor(node.data.lastBlockHeader.topoheight, currentHeight);
         // Update
        // $('#rowNodes > tr[nodeName="' + node.name + '"]').css('color', (node.isOnline ? '#7bcc3a' : 'red'));
-        $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"]').attr('class', 'text-center '+oColor.text);
-        $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="latency"]').html(node.data.latency+' ms').attr('class', getColorLatency(node.data.latency));
-        $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="height"]').html(node.data.lastBlockHeader.height + ' / ' + node.data.lastBlockHeader.topoheight);
-        if (!isNaN(node.propagation)) {
-        	$('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="propagation"]').html(node.propagation+ ' ms');
+        $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"]').attr('class', 'text-center '+oColor.text);
+        $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="latency"]').html(node.data.latency+' ms').attr('class', getColorLatency(node.data.latency));
+        $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="height"]').html(node.data.lastBlockHeader.height + ' / ' + node.data.lastBlockHeader.topoheight);
+        if (!isNaN(node.propagation.lastBlock)) {
+        	$('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="propagation"]').html(node.propagation.lastBlock+ ' ms');
+            drawNodeChart(node.data.informations, node.propagation.historyData, node.propagation.historyLabels, node.propagation.historyColors);
+            $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="average"]').attr('class', getColorBlockTime(node.propagation.average)).html(node.propagation.average+ ' ms');
     	} else {
-    		$('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="propagation"]').html('-');
+    		$('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="propagation"]').html('-');
+    		$('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="history"]').html('-');
+    		$('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="average"]').html('-');
     	}
-        $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="peers_inc"]').html(node.data.get_info.incoming_connections);
-        $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="peers_out"]').html(node.data.get_info.outgoing_connections);
+        $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="peers_inc"]').html(node.data.get_info.incoming_connections);
+        $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="peers_out"]').html(node.data.get_info.outgoing_connections);
 
         /*if (node.isOnline || $('#rowNodes > tr[nodeName="' + node.name + '"] > td[name="updated"] > span.seconds').html() == '') {
             createMoment(node);
@@ -206,6 +210,7 @@ $(function() {
 
         if (map !== null) {
             var bubble = {};
+            bubble.id = node.data.informations.id;
             bubble.name = node.data.informations.name;
             bubble.radius = 4;
             bubble.fillKey = oColor.bgColor;
@@ -215,25 +220,25 @@ $(function() {
             mapNode.push(bubble);
             updateBubbles();
         }
-        nodes[node.data.informations.name].data = node;
+        nodes[node.data.informations.id].data = node;
     }
 
     function createMoment(node) {
-        var $clock = $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="updated"]'),
+        var $clock = $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="updated"]'),
         updateTime = node.data.informations.updated,
         currentTime = moment().unix() * 1000,
         duration = moment.duration(0, 'milliseconds'),
         interval = 1000;
 
-        if(nodes.hasOwnProperty(node.data.informations.name)) {
+        if(nodes.hasOwnProperty(node.data.informations.id)) {
             // Clear Interval
-            clearInterval(nodes[node.data.informations.name].interval);
+            clearInterval(nodes[node.data.informations.id].interval);
         } else {
-            nodes[node.data.informations.name] = {};
+            nodes[node.data.informations.id] = {};
         }
 
-        var $s = $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="updated"] > span.seconds'),
-            $ms = $('#rowNodes > tr[nodeName="' + node.data.informations.name + '"] > td[name="updated"] > span.milliseconds');
+        var $s = $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="updated"] > span.seconds'),
+            $ms = $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="updated"] > span.milliseconds');
 
         $s.text('');
         $ms.text('');
@@ -251,7 +256,7 @@ $(function() {
         }
         duration = momentNode(duration);
         
-        nodes[node.data.informations.name].interval = setInterval(function() {
+        nodes[node.data.informations.id].interval = setInterval(function() {
             duration = momentNode(duration);
         }, interval);
     }
@@ -300,18 +305,19 @@ $(function() {
 
     }
 
-    function drawChartBar(idChart, label, arrayLabels, arrayData, color) {
-        var ctx = document.getElementById(idChart).getContext('2d');
+    function drawChartBar(selector, label, arrayLabels, arrayData, color) {
+        //var ctx = document.getElementById(idChart).getContext('2d');
+        var ctx = selector;
         var baseColor = '#f74b4b';
         if (color) {
             baseColor = color;
         }
 
-        if (allChart.hasOwnProperty(idChart)) {
-            allChart[idChart].data.labels = arrayLabels;
-            allChart[idChart].data.datasets[0].data = arrayData;
-            allChart[idChart].data.datasets[0].backgroundColor = baseColor;
-            allChart[idChart].update();
+        if (allChart.hasOwnProperty(selector[0].id)) {
+            allChart[selector[0].id].data.labels = arrayLabels;
+            allChart[selector[0].id].data.datasets[0].data = arrayData;
+            allChart[selector[0].id].data.datasets[0].backgroundColor = baseColor;
+            allChart[selector[0].id].update();
             return;
             /*allChart[idChart].destroy();
             delete allChart[idChart];*/
@@ -363,7 +369,7 @@ $(function() {
                 }
             }
         });
-        allChart[idChart] = myChart;
+        allChart[selector[0].id] = myChart;
         if (!mapInit) {
             mapInit = true;
             createMap();
@@ -400,9 +406,17 @@ $(function() {
 
     function getColorLatency(latency) {
         if (latency < 100) return 'text-green';
-        if (latency < 200) return 'text-yellow';
-        if (latency < 400) return 'text-orange';
+        if (latency < 300) return 'text-yellow';
+        if (latency < 500) return 'text-orange';
         return 'text-red';
+    }
+
+    function getColorBlockTime(blockPropagation) {
+    	if (blockPropagation === 0) return 'text-blue';
+		else if (blockPropagation < 500) return 'text-green';
+		else if (blockPropagation < 1500) return 'text-yellow';
+		else if (blockPropagation < 2500) return 'text-orange';
+		else return 'text-red';
     }
 
     $('table#nodesTable > thead > tr > th').on('click', function() {
@@ -419,7 +433,7 @@ $(function() {
               x = rows[i].getElementsByTagName("TD")[n].innerHTML.toLowerCase();
               y = rows[i + 1].getElementsByTagName("TD")[n].innerHTML.toLowerCase();
 
-              if (n == 1 || n == 3 || n == 8) {
+              if (n == 1 || n == 3 || n == 8 || n == 9) {
                 ///[A-Z]*[a-z]* * [<->\"]*/gi
                 // number comparaison - ms column
                 var x = parseInt(x.replace(/[A-Za-z]*[<>\"=/ -]*/gi,''));
@@ -523,5 +537,152 @@ $(function() {
         }
     }
 
+    function drawNodeChart(node, arrayData, arrayLabels, arrayColors) {
+
+        if (allChart.hasOwnProperty(node.id)) {
+            allChart[node.id].data.labels = arrayLabels;
+            allChart[node.id].data.datasets[0].data = arrayData;
+            allChart[node.id].data.datasets[0].backgroundColor = arrayColors;
+            allChart[node.id].update();
+            return;
+            /*allChart[idChart].destroy();
+            delete allChart[idChart];*/
+        } else {
+            $('#rowNodes > tr[nodeName="' + node.id + '"] > td[name="history"]').get(0).innerHTML = '<canvas id="chart'+node.id+'" class="nodeCanvas" height="8"></canvas>';
+            var ctx = $('canvas#chart'+node.id).get(0).getContext("2d");
+        }
+
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: arrayLabels,
+                datasets: [{
+                    data: arrayData,
+                    backgroundColor: arrayColors
+                }]
+            },
+            options: {
+                segmentShowStroke: false,
+               maintainAspectRatio: false,
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    enabled: false,
+                    position: 'nearest',
+			        custom: function(tooltipModel) {
+		                // Tooltip Element
+		                var tooltipEl = document.getElementById('chartjs-tooltip');
+
+		                // Create element on first render
+		                if (!tooltipEl) {
+		                    tooltipEl = document.createElement('div');
+		                    tooltipEl.id = 'chartjs-tooltip';
+		                    tooltipEl.innerHTML = "<table></table>";
+		                    document.body.appendChild(tooltipEl);
+		                }
+
+		                // Hide if no tooltip
+		                if (tooltipModel.opacity === 0) {
+		                    tooltipEl.style.opacity = 0;
+		                    return;
+		                }
+
+		                // Set caret Position
+		                tooltipEl.classList.remove('above', 'below', 'no-transform');
+		                if (tooltipModel.yAlign) {
+		                    tooltipEl.classList.add(tooltipModel.yAlign);
+		                } else {
+		                    tooltipEl.classList.add('no-transform');
+		                }
+
+		                function getBody(bodyItem) {
+		                    return bodyItem.lines;
+		                }
+
+		                // Set Text
+		                if (tooltipModel.body) {
+		                    var titleLines = tooltipModel.title || [];
+		                    var bodyLines = tooltipModel.body.map(getBody);
+
+		                    var innerHtml = '<tbody>';
+
+		                    bodyLines.forEach(function(body, i) {
+		                        innerHtml += '<tr><td style="color: #000;">' + body + ' ms</td></tr>';
+		                    });
+		                    innerHtml += '</tbody>';
+
+		                    var tableRoot = tooltipEl.querySelector('table');
+		                    tableRoot.innerHTML = innerHtml;
+		                }
+
+		                // `this` will be the overall tooltip
+		                var position = $(this._chart.canvas)[0].getBoundingClientRect();
+		                var canvas = this._chart.canvas;
+
+		                // Display, position, and set styles for font
+		                tooltipEl.style.opacity = 1;
+		                tooltipEl.style.position = 'absolute';
+		                tooltipEl.style.left = position.left + ((canvas.width / 4) / 2) + 'px',
+		                tooltipEl.style.top = position.top + canvas.height - 50 + 'px',
+		                tooltipEl.style.fontFamily = tooltipModel._bodyFontFamily;
+		                tooltipEl.style.fontSize = tooltipModel.bodyFontSize + 'px';
+		                tooltipEl.style.fontStyle = tooltipModel._bodyFontStyle;
+		                tooltipEl.style.bodyFontColor = '#000';
+		                tooltipEl.style.padding = '6px ' + '6px';
+		                tooltipEl.style.backgroundColor = '#fff';
+		                tooltipEl.cornerRadius = '6px';
+		            }
+		        },
+                scales: {
+                    xAxes: [{
+                        categoryPercentage: 1.0,
+                        barPercentage: 1.0,
+                        ticks: {
+                            display: false,
+                            padding: 0
+                        },
+                        gridLines: {
+                            tickMarkLength: 0
+                        } 
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            display: false,
+                            padding: 0
+                        },
+                    }]
+                }
+            }
+        });
+        allChart[node.id] = myChart;
+    }
+
+    var showZeroPlugin = {
+    beforeRender: function (chartInstance) {
+        var datasets = chartInstance.config.data.datasets;
+
+        for (var i = 0; i < datasets.length; i++) {
+            var meta = datasets[i]._meta;
+            // It counts up every time you change something on the chart so
+            // this is a way to get the info on whichever index it's at
+            var metaData = meta[Object.keys(meta)[0]];
+            var bars = metaData.data;
+
+            for (var j = 0; j < bars.length; j++) {
+                var model = bars[j]._model;
+
+                if (metaData.type === "horizontalBar" && (model.base === model.x || model.base < model.x + 5)) {
+                    model.x = model.base + 1;
+                } else if (model.base === model.y) {
+                    model.y = model.base - 1;
+                }
+            }
+        }
+
+    }
+};
+
+Chart.pluginService.register(showZeroPlugin);
 
 });

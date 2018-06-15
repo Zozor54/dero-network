@@ -22,6 +22,7 @@ global.collectedStats = {};
 global.collectedNodes = {};
 global.deroDag = null;
 global.globalCurrentHeight = 0;
+global.reducer = (accumulator, currentValue) => accumulator + currentValue;
 
 global.io = socketIo.listen(server);
 
@@ -62,7 +63,6 @@ mongoDbConnection(function(databaseConnection) {
 
         // NODE SOCKET ROOM
         io.of('/nodes').on('connection', function (socket) {
-
             // Get real ip
             var ip = socket.handshake.address.substring(7);
 
@@ -78,6 +78,10 @@ mongoDbConnection(function(databaseConnection) {
 
                 if(!collectedNodes.hasOwnProperty(ip)) {
                     collectedNodes[ip] = {};
+                    collectedNodes[ip].propagation = {};
+                    collectedNodes[ip].propagation.historyData = [];
+                    collectedNodes[ip].propagation.historyLabels = [];
+                    collectedNodes[ip].propagation.historyColors = [];
                 }
 
                 // Controle de sécurité
@@ -151,14 +155,17 @@ mongoDbConnection(function(databaseConnection) {
                                     databaseConnection.collection("geo_node").insert(newEntry, null, function (error, results) {
                                         if (error) throw error;
                                         winston.log('info', 'nodes --- New GPS entry');
+                                        socket.myId = newEntry._id.toString();
                                         collectedNodes[ip].geo = {
                                             latitude: body.latitude,
                                             longitude: body.longitude
                                         };
+
                                     });
                                 }
                             });
                         } else {
+                            socket.myId = result._id.toString();
                             collectedNodes[ip].geo = {
                                 latitude: result.latitude,
                                 longitude: result.longitude
@@ -177,6 +184,7 @@ mongoDbConnection(function(databaseConnection) {
                 if (!collectedNodes.hasOwnProperty(ip) && !collectedNodes[ip].isSecure) {
                     return;
                 }
+                data.informations.id = socket.myId;
                 data.informations.name = data.informations.name.replace(/[<>\\?!&"'/]*/ig, '');
                 data.informations.description = data.informations.name.replace(/[<>\\?!&"'/]*/ig, '');
                 collectedNodes[ip].data = data;
@@ -184,11 +192,8 @@ mongoDbConnection(function(databaseConnection) {
 
                 if (data.lastBlockHeader.topoheight == globalCurrentHeight) {
                     // Node propagation
-                    hasNewBlock.push(ip);
-                    var myTime = parseInt((Date.now() - data.latency));
-                    var myPropagation = myTime - parseInt(baseBlockPropagation);
-                    if (myPropagation < 0) myPropagation = 0;
-                    collectedNodes[ip].propagation = myPropagation;
+                    //hasNewBlock.push(ip);
+                    storeblockPropagation(data, ip, false);
 
                     // Network propagation
                     /*if (Object.keys(collectedNodes).length === hasNewBlock.length) {
@@ -202,11 +207,8 @@ mongoDbConnection(function(databaseConnection) {
                 askUpdate(data.lastBlockHeader);
                 
                 if (data.lastBlockHeader.topoheight > globalCurrentHeight) {
-                    // Save the new block
-                    // New Block -- save the "base time"
-                    baseBlockPropagation = Date.now() - data.latency;
-                    //hasNewBlock.push(ip);
-                    collectedNodes[ip].propagation = 0;
+                    // Block propagation
+                    storeblockPropagation(data, ip, true);
                     // Recent Block
                     globalCurrentHeight = data.lastBlockHeader.topoheight;
                     // Now we need use this informations
@@ -280,8 +282,30 @@ mongoDbConnection(function(databaseConnection) {
         		});
         	});
         }
+
+        function storeblockPropagation(data, ip, newBlock) {
+            if (newBlock) {
+                baseBlockPropagation = Date.now() - data.latency;
+                var myPropagation = 0;
+            } else {
+                var myPropagation = parseInt((Date.now() - data.latency)) - parseInt(baseBlockPropagation);
+                if (myPropagation < 0) myPropagation = 0;
+            }
+             
+            collectedNodes[ip].propagation.lastBlock = myPropagation;
+            if (collectedNodes[ip].propagation.historyData.length > 50) {
+                collectedNodes[ip].propagation.historyData.splice(0, 1);
+                collectedNodes[ip].propagation.historyLabels.splice(0, 1);
+                collectedNodes[ip].propagation.historyColors.splice(0, 1);
+            }
+            collectedNodes[ip].propagation.historyData.push(myPropagation);
+            collectedNodes[ip].propagation.historyLabels.push(data.lastBlockHeader.topoheight);
+            collectedNodes[ip].propagation.historyColors.push(api.getColorPropagation(myPropagation));
+            collectedNodes[ip].propagation.average = Math.round(collectedNodes[ip].propagation.historyData.reduce(reducer) / collectedNodes[ip].propagation.historyData.length);
+        }
         
     });
 });
 
 server.listen(SERVER_PORT);
+

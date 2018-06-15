@@ -96,11 +96,16 @@
         table#nodesTable > thead > tr > th {
             cursor: pointer;
         }
-
+            
         table#nodesTable tr {
-            line-height: 8px;
+            line-height: 20px;
             font-size: 12px;
             font-weight: 600;
+        }
+
+        table#nodesTable tr > td {
+            padding-bottom: 5px !important;
+            padding-top: 5px !important;
         }
 
         .stats {
@@ -193,6 +198,11 @@
 
         .pointer {
             cursor: pointer;
+        }
+
+        .nodeCanvas {
+            width: 140px !important;
+            margin: auto;
         }
 
     </style>
@@ -321,23 +331,27 @@
 
 
         <div class="row">
-            <table id="nodesTable" class="table table-striped">
-                <thead>
-                    <tr class="text-center">
-                        <th><span data-toggle="tooltip" data-placement="top" title="Nodes' name"><i class="fas fa-laptop"></i></span></th>
-                        <th>Latency</th>
-                        <th>Height/Topo</th>
-                        <th>Block Propagation</th>
-                        <th>Peers INC</th>
-                        <th>Peers OUT</th>
-                        <th>Version</th>
-                        <th>Last update</th>
-                    </tr>
-                </thead>
-                <tbody id="rowNodes">
+            <div class="col-12 table-responsive">
+                <table id="nodesTable" class="table table-striped">
+                    <thead>
+                        <tr class="text-center">
+                            <th><span data-toggle="tooltip" data-placement="top" title="Nodes' name"><i class="fas fa-laptop"></i></span></th>
+                            <th>Latency</th>
+                            <th>Height/Topo</th>
+                            <th>Block Propagation</th>
+                            <th>Peers INC</th>
+                            <th>Peers OUT</th>
+                            <th>Version</th>
+                            <th>Last 50 blocks propagation</th>
+                            <th>Avg</th>
+                            <th>Last update</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rowNodes">
 
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
