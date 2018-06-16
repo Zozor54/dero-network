@@ -236,7 +236,7 @@ $(function() {
             if ($('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="version"]').html() !== node.data.get_info.version) {
                 $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="version"]').html(node.data.get_info.version);
             }
-            //createMoment(node);
+            createMoment(node);
 
             if (currentNodeHasChanged) {
                 updateBubbles();
@@ -279,7 +279,7 @@ $(function() {
         }
         duration = momentNode(duration);
         
-        nodes[node.data.informations.id].interval = setInterval(function timeout() {
+        nodes[node.data.informations.id].interval = setInterval(function() {
             duration = momentNode(duration);
         }, interval);
     }
@@ -516,7 +516,7 @@ $(function() {
         }
 
         var container = document.getElementById('derodag');
-        
+
         var options = {
             nodes: {
                 borderWidth:2
