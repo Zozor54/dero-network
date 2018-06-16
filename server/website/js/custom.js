@@ -55,7 +55,8 @@ $(function() {
 		  if (nodes[node].data.data.informations.name != data.informations.name) {
         		updateNode(nodes[node].data, true);
         	}
-		} 
+		}
+        updateBubbles(); 
         //chartDifficulty(data.chart.difficulty);    
     });
 
@@ -167,7 +168,6 @@ $(function() {
     }
 
     function updateBubbles() {
-        // 
         map.bubbles(mapNode, {
             popupTemplate: function (geo, data) {
                     return ['<div class="hoverinfo '+data.fillKey+'"><div class="propagationBox"></div> <strong>' +  data.name +'</strong></div>'].join('');
@@ -175,7 +175,23 @@ $(function() {
         });
     }
 
+    function setNodesBubble(node) {
+        if (map !== null) {
+            var bubble = {};
+            bubble.id = node.data.informations.id;
+            bubble.name = node.data.informations.name;
+            bubble.radius = 4;
+            bubble.fillKey = nodes[node.data.informations.id].mapColor;
+            bubble.latitude = node.geo.latitude;
+            bubble.longitude = node.geo.longitude;
+            mapNode = mapNode.filter(nodeBubble => nodeBubble.id != bubble.id);
+            mapNode.push(bubble);
+        }
+    }
+
     function updateNode(node, forceUpdate) {
+        var currentNodeHasChanged = false;
+
         if (!nodes.hasOwnProperty(node.data.informations.id)) {
             // Create new node
             var sNewNode = '<tr nodeName="'+node.data.informations.id+'" class="text-center"><td scope="row" class="pointer" name="node" data-toggle="tooltip" data-placement="top"></td><td name="latency"></td><td name="height"></td><td name="propagation"></td><td name="peers_inc"></td><td name="peers_out"></td><td name="version"></td><td name="history"></td><td name="average"></td><td name="updated"><span class="seconds" ></span><span class="milliseconds" ></span></td></tr>';
@@ -187,11 +203,17 @@ $(function() {
             }
             $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="version"]').html(node.data.get_info.version);
             nodes[node.data.informations.id] = {};
+            nodes[node.data.informations.id].mapColor = '';
         }
         
         var oColor = getBlockColor(node.data.lastBlockHeader.topoheight, currentHeight);
+        if (oColor.bgColor !== nodes[node.data.informations.id].mapColor) {
+            currentNodeHasChanged = true;
+            nodes[node.data.informations.id].mapColor = oColor.bgColor;
+            setNodesBubble(node);
+        }
+
         // Update
-       // $('#rowNodes > tr[nodeName="' + node.name + '"]').css('color', (node.isOnline ? '#7bcc3a' : 'red'));
         $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"]').attr('class', 'text-center '+oColor.text);
 
         if (!forceUpdate) {
@@ -213,9 +235,14 @@ $(function() {
                 $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="version"]').html(node.data.get_info.version);
             }
             createMoment(node);
+
+            if (currentNodeHasChanged) {
+                updateBubbles();
+            }
         }
 
-        if (map !== null) {
+        if (map !== null && oColor.bgColor !== nodes[node.data.informations.id].mapColor) {
+            console.log('update map ' + node.data.informations.name);
             var bubble = {};
             bubble.id = node.data.informations.id;
             bubble.name = node.data.informations.name;
@@ -225,6 +252,7 @@ $(function() {
             bubble.longitude = node.geo.longitude;
             mapNode = mapNode.filter(nodeBubble => nodeBubble.name != bubble.name);
             mapNode.push(bubble);
+            nodes[node.data.informations.id].mapColor = oColor.bgColor;
             updateBubbles();
         }
         nodes[node.data.informations.id].data = node;
@@ -626,7 +654,7 @@ $(function() {
 		                // `this` will be the overall tooltip
 		                var position = $(this._chart.canvas)[0].getBoundingClientRect();
                         var canvas = this._chart.canvas;
-                        
+
 		                // Display, position, and set styles for font
 		                tooltipEl.style.opacity = 1;
 		                tooltipEl.style.position = 'fixed';
