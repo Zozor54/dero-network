@@ -577,7 +577,6 @@ $(function() {
                 },
                 tooltips: {
                     enabled: false,
-                    position: 'nearest',
 			        custom: function(tooltipModel) {
 		                // Tooltip Element
 		                var tooltipEl = document.getElementById('chartjs-tooltip');
@@ -626,13 +625,13 @@ $(function() {
 
 		                // `this` will be the overall tooltip
 		                var position = $(this._chart.canvas)[0].getBoundingClientRect();
-		                var canvas = this._chart.canvas;
-
+                        var canvas = this._chart.canvas;
+                        
 		                // Display, position, and set styles for font
 		                tooltipEl.style.opacity = 1;
-		                tooltipEl.style.position = 'absolute';
-		                tooltipEl.style.left = position.left + ((canvas.width / 4) / 2) + 'px',
-		                tooltipEl.style.top = position.top + canvas.height - 50 + 'px',
+		                tooltipEl.style.position = 'fixed';
+		                tooltipEl.style.left = position.left + (canvas.clientWidth / 2) - (tooltipModel.width / 2) + 'px',
+		                tooltipEl.style.top = position.top - 50 + 'px',
 		                tooltipEl.style.fontFamily = tooltipModel._bodyFontFamily;
 		                tooltipEl.style.fontSize = tooltipModel.bodyFontSize + 'px';
 		                tooltipEl.style.fontStyle = tooltipModel._bodyFontStyle;
