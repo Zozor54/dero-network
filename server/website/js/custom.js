@@ -97,6 +97,7 @@ $(function() {
     }, 5000);
 
     function createMap() {
+        var animation = screen.width >= 1080 ? true : false;
         var width = $('#container').parent().width(),
         height = $('#container').parent().height();
         $('#container').css('height', height+'px');
@@ -120,7 +121,7 @@ $(function() {
             bubblesConfig: {
                 borderWidth: 1,
                 borderColor: '#000',
-                animate: true,
+                animate: animation,
                 highlightOnHover: false,
                 popupOnHover: true
             },
@@ -168,6 +169,7 @@ $(function() {
     }
 
     function updateBubbles() {
+        //d3.selectAll("circle").remove();
         map.bubbles(mapNode, {
             popupTemplate: function (geo, data) {
                     return ['<div class="hoverinfo '+data.fillKey+'"><div class="propagationBox"></div> <strong>' +  data.name +'</strong></div>'].join('');
@@ -234,26 +236,11 @@ $(function() {
             if ($('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="version"]').html() !== node.data.get_info.version) {
                 $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="version"]').html(node.data.get_info.version);
             }
-            createMoment(node);
+            //createMoment(node);
 
             if (currentNodeHasChanged) {
                 updateBubbles();
             }
-        }
-
-        if (map !== null && oColor.bgColor !== nodes[node.data.informations.id].mapColor) {
-            console.log('update map ' + node.data.informations.name);
-            var bubble = {};
-            bubble.id = node.data.informations.id;
-            bubble.name = node.data.informations.name;
-            bubble.radius = 4;
-            bubble.fillKey = oColor.bgColor;
-            bubble.latitude = node.geo.latitude;
-            bubble.longitude = node.geo.longitude;
-            mapNode = mapNode.filter(nodeBubble => nodeBubble.name != bubble.name);
-            mapNode.push(bubble);
-            nodes[node.data.informations.id].mapColor = oColor.bgColor;
-            updateBubbles();
         }
         nodes[node.data.informations.id].data = node;
     }
@@ -267,6 +254,7 @@ $(function() {
 
         if(nodes.hasOwnProperty(node.data.informations.id)) {
             // Clear Interval
+            //clearInterval(nodes[node.data.informations.id].interval);
             clearInterval(nodes[node.data.informations.id].interval);
         } else {
             nodes[node.data.informations.id] = {};
@@ -291,7 +279,7 @@ $(function() {
         }
         duration = momentNode(duration);
         
-        nodes[node.data.informations.id].interval = setInterval(function() {
+        nodes[node.data.informations.id].interval = setInterval(function timeout() {
             duration = momentNode(duration);
         }, interval);
     }
@@ -358,7 +346,7 @@ $(function() {
             delete allChart[idChart];*/
         }
 
-        var myChart = new Chart(ctx, {
+        var options = {
             type: 'bar',
             data: {
                 labels: arrayLabels,
@@ -403,7 +391,13 @@ $(function() {
                     }]
                 }
             }
-        });
+        };
+
+        if (screen.width < 1080) {
+            options.options.animation = false;
+        }
+
+        var myChart = new Chart(ctx, options);
         allChart[selector[0].id] = myChart;
         if (!mapInit) {
             mapInit = true;
@@ -507,13 +501,22 @@ $(function() {
         tmp.push(deroDag.value);
         data.push({ id: deroDag.value, font: { multi: 'html' }, label: '<b>'+deroDag.value.toString()+'</b>', color: "#7bcc3a", level: deroDag.depth, shapeProperties:{borderDashes:[5,0]} });
         recursiveDeroDag(deroDag);
-
-        var container = document.getElementById('derodag');
  
         var data = {
             nodes: data,
             edges: blockLink
         };
+
+        if (network !== null) {
+            network.setData({ nodes: data.nodes, edges: data.edges });
+            //network.body.data = data;
+            //network.update();
+            network.redraw();
+            return;
+        }
+
+        var container = document.getElementById('derodag');
+        
         var options = {
             nodes: {
                 borderWidth:2
@@ -538,11 +541,6 @@ $(function() {
                 dragView: false
             }
         };
-
-        if (network !== null) {
-            network.destroy();
-            network = null;
-        }
   
         network = new vis.Network(container, data, options);
 
@@ -587,7 +585,7 @@ $(function() {
             var ctx = $('canvas#chart'+node.id).get(0).getContext("2d");
         }
 
-        var myChart = new Chart(ctx, {
+        var options = {
             type: 'bar',
             data: {
                 labels: arrayLabels,
@@ -597,78 +595,78 @@ $(function() {
                 }]
             },
             options: {
-            	//animation: false,
+                //animation: false,
                 segmentShowStroke: false,
-               maintainAspectRatio: false,
+                maintainAspectRatio: false,
                 legend: {
                     display: false
                 },
                 tooltips: {
                     enabled: false,
-			        custom: function(tooltipModel) {
-		                // Tooltip Element
-		                var tooltipEl = document.getElementById('chartjs-tooltip');
+                    custom: function(tooltipModel) {
+                        // Tooltip Element
+                        var tooltipEl = document.getElementById('chartjs-tooltip');
 
-		                // Create element on first render
-		                if (!tooltipEl) {
-		                    tooltipEl = document.createElement('div');
-		                    tooltipEl.id = 'chartjs-tooltip';
-		                    tooltipEl.innerHTML = "<table></table>";
-		                    document.body.appendChild(tooltipEl);
-		                }
+                        // Create element on first render
+                        if (!tooltipEl) {
+                            tooltipEl = document.createElement('div');
+                            tooltipEl.id = 'chartjs-tooltip';
+                            tooltipEl.innerHTML = "<table></table>";
+                            document.body.appendChild(tooltipEl);
+                        }
 
-		                // Hide if no tooltip
-		                if (tooltipModel.opacity === 0) {
-		                    tooltipEl.style.opacity = 0;
-		                    return;
-		                }
+                        // Hide if no tooltip
+                        if (tooltipModel.opacity === 0) {
+                            tooltipEl.style.opacity = 0;
+                            return;
+                        }
 
-		                // Set caret Position
-		                tooltipEl.classList.remove('above', 'below', 'no-transform');
-		                if (tooltipModel.yAlign) {
-		                    tooltipEl.classList.add(tooltipModel.yAlign);
-		                } else {
-		                    tooltipEl.classList.add('no-transform');
-		                }
+                        // Set caret Position
+                        tooltipEl.classList.remove('above', 'below', 'no-transform');
+                        if (tooltipModel.yAlign) {
+                            tooltipEl.classList.add(tooltipModel.yAlign);
+                        } else {
+                            tooltipEl.classList.add('no-transform');
+                        }
 
-		                function getBody(bodyItem) {
-		                    return bodyItem.lines;
-		                }
+                        function getBody(bodyItem) {
+                            return bodyItem.lines;
+                        }
 
-		                // Set Text
-		                if (tooltipModel.body) {
-		                    var titleLines = tooltipModel.title || [];
-		                    var bodyLines = tooltipModel.body.map(getBody);
+                        // Set Text
+                        if (tooltipModel.body) {
+                            var titleLines = tooltipModel.title || [];
+                            var bodyLines = tooltipModel.body.map(getBody);
 
-		                    var innerHtml = '<tbody>';
+                            var innerHtml = '<tbody>';
 
-		                    bodyLines.forEach(function(body, i) {
-		                        innerHtml += '<tr><td style="color: #000;">' + body + ' ms</td></tr>';
-		                    });
-		                    innerHtml += '</tbody>';
+                            bodyLines.forEach(function(body, i) {
+                                innerHtml += '<tr><td style="color: #000;">' + body + ' ms</td></tr>';
+                            });
+                            innerHtml += '</tbody>';
 
-		                    var tableRoot = tooltipEl.querySelector('table');
-		                    tableRoot.innerHTML = innerHtml;
-		                }
+                            var tableRoot = tooltipEl.querySelector('table');
+                            tableRoot.innerHTML = innerHtml;
+                        }
 
-		                // `this` will be the overall tooltip
-		                var position = $(this._chart.canvas)[0].getBoundingClientRect();
+                        // `this` will be the overall tooltip
+                        var position = $(this._chart.canvas)[0].getBoundingClientRect();
                         var canvas = this._chart.canvas;
 
-		                // Display, position, and set styles for font
-		                tooltipEl.style.opacity = 1;
-		                tooltipEl.style.position = 'fixed';
-		                tooltipEl.style.left = position.left + (canvas.clientWidth / 2) - (tooltipModel.width / 2) + 'px',
-		                tooltipEl.style.top = position.top - 50 + 'px',
-		                tooltipEl.style.fontFamily = tooltipModel._bodyFontFamily;
-		                tooltipEl.style.fontSize = tooltipModel.bodyFontSize + 'px';
-		                tooltipEl.style.fontStyle = tooltipModel._bodyFontStyle;
-		                tooltipEl.style.bodyFontColor = '#000';
-		                tooltipEl.style.padding = '6px ' + '6px';
-		                tooltipEl.style.backgroundColor = '#fff';
-		                tooltipEl.cornerRadius = '6px';
-		            }
-		        },
+                        // Display, position, and set styles for font
+                        tooltipEl.style.opacity = 1;
+                        tooltipEl.style.position = 'fixed';
+                        tooltipEl.style.left = position.left + (canvas.clientWidth / 2) - (tooltipModel.width / 2) + 'px',
+                        tooltipEl.style.top = position.top - 50 + 'px',
+                        tooltipEl.style.fontFamily = tooltipModel._bodyFontFamily;
+                        tooltipEl.style.fontSize = tooltipModel.bodyFontSize + 'px';
+                        tooltipEl.style.fontStyle = tooltipModel._bodyFontStyle;
+                        tooltipEl.style.bodyFontColor = '#000';
+                        tooltipEl.style.padding = '6px ' + '6px';
+                        tooltipEl.style.backgroundColor = '#fff';
+                        tooltipEl.cornerRadius = '6px';
+                    }
+                },
                 scales: {
                     xAxes: [{
                         categoryPercentage: 1.0,
@@ -689,7 +687,13 @@ $(function() {
                     }]
                 }
             }
-        });
+        };
+
+        if (screen.width < 1080) {
+            options.options.animation = false;
+        }
+
+        var myChart = new Chart(ctx, options);
         allChart[node.id] = myChart;
     }
 
