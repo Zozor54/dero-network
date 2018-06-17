@@ -73,7 +73,7 @@ module.exports= {
 					blockTime: { data: blockTime.reverse(), color: colorBlockTime.reverse(), height: heightBlockTime.reverse()},
 					avgBlockTime: Math.round(((blockTime.reduce(reducer) / blockTime.length) * 10))  / 10,
 					transactions: transactions.reverse(),
-					avgTransactions: Math.round(sumTx / i)
+					avgTransactions: Math.round(sumTx / (i*(Math.round(((blockTime.reduce(reducer) / blockTime.length) * 10))  / 10)))
 				};
 				io.of('/website').emit('daemon', collectedStats);
 			});
