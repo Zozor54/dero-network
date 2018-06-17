@@ -32,9 +32,11 @@ module.exports= {
         		var transactions = [];
         		var sumTx = 0;
         		var i = 1;
+        		var lastBlockTimestamp = null;
+        		var blockTimestamp = null;
 				if (result[0]) {
 					// First : la difficulté des 50 derniers blocs
-					result.forEach(function(element) {
+					result.forEach(function(element, index) {
 						// Difficulty Chart
 						difficulty.push(element.block_header.difficulty);
 						height.push(element.block_header.topoheight);
@@ -56,6 +58,12 @@ module.exports= {
 						lastBlockTime = element.block_header.timestamp;
 						transactions.push(element.block_header.txcount);
 						if (i <= 10) {
+							if (i === 1) {
+								lastBlockTimestamp = lastBlockTime;
+							}
+							if (result[index + 1] !== undefined) {
+								blockTimestamp = lastBlockTime;
+							}
 							sumTx += element.block_header.txcount;
 							i++;
 						}
@@ -73,7 +81,7 @@ module.exports= {
 					blockTime: { data: blockTime.reverse(), color: colorBlockTime.reverse(), height: heightBlockTime.reverse()},
 					avgBlockTime: Math.round(((blockTime.reduce(reducer) / blockTime.length) * 10))  / 10,
 					transactions: transactions.reverse(),
-					avgTransactions: Math.round(sumTx / i)
+					avgTransactions: Math.round(sumTx / (lastBlockTimestamp - blockTimestamp))
 				};
 				io.of('/website').emit('daemon', collectedStats);
 			});
