@@ -1,4 +1,14 @@
 $(function() {
+    if (localStorage.getItem('animationChart') === null) {
+        localStorage.setItem('animationChart', false);
+        localStorage.setItem('animationNodes', false);
+        localStorage.setItem('animationMap', false);
+    }
+
+    var prefAnimationChart = JSON.parse(localStorage.getItem('animationChart'));
+    var prefAnimationNodes = JSON.parse(localStorage.getItem('animationNodes'));
+    var prefAnimationMap = JSON.parse(localStorage.getItem('animationMap'));
+
     var allChart = {};
     var nodes = {};
     var map = null;
@@ -7,7 +17,7 @@ $(function() {
     var mapInit = false;
     var currentHeight = 0;
     var network = null;
-
+    
     var $mLastBlock = $('#networkLastBlock > span.minutes'),
         $sLastBlock = $('#networkLastBlock > span.seconds');
     var intervalLastBlock = null;
@@ -97,7 +107,7 @@ $(function() {
     }, 5000);
 
     function createMap() {
-        var animation = screen.width >= 1080 ? true : false;
+        var animation = prefAnimationMap;
         var width = $('#container').parent().width(),
         height = $('#container').parent().height();
         $('#container').css('height', height+'px');
@@ -393,7 +403,7 @@ $(function() {
             }
         };
 
-        if (screen.width < 1080) {
+        if (!prefAnimationChart) {
             options.options.animation = false;
         }
 
@@ -689,7 +699,7 @@ $(function() {
             }
         };
 
-        if (screen.width < 1080) {
+        if (!prefAnimationNodes) {
             options.options.animation = false;
         }
 
@@ -723,5 +733,24 @@ $(function() {
 };
 
 Chart.pluginService.register(showZeroPlugin);
+
+// CHECKBOX
+$('input[type="checkbox"]').on('change', function() {
+    let id = $(this)[0].id;
+    let bEnable = $('input#'+id).is(':checked');
+    localStorage.setItem(id, bEnable);
+
+    switch (id){
+        case 'animationChart':
+            allChart = {};
+        break;
+
+    }
+});
+
+// INIT
+$('input#animationChart').prop('checked', prefAnimationChart);
+$('input#animationNodes').prop('checked', prefAnimationNodes);
+$('input#animationMap').prop('checked', prefAnimationMap);
 
 });

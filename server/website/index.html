@@ -209,6 +209,11 @@
             margin: auto;
         }
 
+        .form-check-inline {
+            vertical-align: middle;
+            margin-right: 0px;
+        }
+
     </style>
 </head>
 
@@ -328,7 +333,7 @@
         <div class="row box attention">
             <div class="col-12">
                 <span class="title-stats inline">ATTENTION!</span>
-                <span class="title-stats inline"><a target="_blank" href="https://git.dero.io/DeroProject/dero-stats-client"> - download stats client</a></span>
+                <span class="title-stats inline"><a target="_blank" href="https://github.com/Mojo-LB/DeroStats/releases"> - download stats client</a></span>
                 <span class="text-yellow float-right">This page does not represent the entire state of the dero network - listing a node on this page is a voluntary process.</span>
             </div>
         </div>
@@ -361,7 +366,23 @@
 
     <footer class="footer">
       <div class="container-fluid">
-        <span class="float-right small">Users connected : <span class="text-green" id="userConnected"></span> - Page latency: <span id="myLatency"></span></span>
+        <span class="float-right small">
+            <span class="form-check-inline"> Animations : </span>
+            <div class="form-check-inline">
+                <input class="form-check-input" type="checkbox" id="animationChart">
+                <label class="form-check-label" for="animationChart">Chart</label>
+            </div>
+            <div class="form-check-inline">
+                <input class="form-check-input" type="checkbox" id="animationNodes">
+                <label class="form-check-label" for="animationNodes">Nodes</label>
+            </div>
+            <div class="form-check-inline">
+                <input class="form-check-input" type="checkbox" id="animationMap">
+                <label class="form-check-label" for="animationMap">Map</label>
+            </div>
+            <span class="form-check-inline">&nbsp;- Users connected:&nbsp;</span> <span class="text-green" id="userConnected"></span> 
+            <span class="form-check-inline">&nbsp;- Page latency:&nbsp;</span> <span id="myLatency"></span>
+        </span>
       </div>
     </footer>
 

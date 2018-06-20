@@ -184,9 +184,13 @@ mongoDbConnection(function(databaseConnection) {
                 if (!collectedNodes.hasOwnProperty(ip) || !collectedNodes[ip].hasOwnProperty('isSecure') || !collectedNodes[ip].isSecure) {
                     return;
                 }
+                if (!data.hasOwnProperty('informations') || !data.informations.hasOwnProperty('name') || data.informations.name.toString().trim() === "") {
+                    socket.emit('banned', 'You have to choose a name');
+                    return;
+                }
                 data.informations.id = socket.myId;
-                data.informations.name = data.informations.name.replace(/[<>\\?!&"'/]*/ig, '');
-                data.informations.description = data.informations.description.replace(/[<>\\?!&"'/]*/ig, '');
+                data.informations.name = data.informations.name.toString().replace(/[<>\\?!&"'/]*/ig, '');
+                data.informations.description = data.informations.description.toString().replace(/[<>\\?!&"'/]*/ig, '');
                 collectedNodes[ip].data = data;
                 collectedNodes[ip].block = globalCurrentHeight;
 
