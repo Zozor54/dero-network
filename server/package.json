@@ -4,6 +4,8 @@
   "dependencies": {
     "async": "^2.6.1",
     "body-parser": "^1.18.3",
+    "cluster": "^0.7.7",
+    "compression": "^1.7.2",
     "datamaps": "^0.5.9",
     "express": "^3.3.8",
     "mongodb": "^2.2.33",

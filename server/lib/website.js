@@ -16,7 +16,7 @@ io.of('/website').on('connection', function (socket) {
     }
 
     for (var node in collectedNodes) {
-    	if (collectedNodes[node].hasOwnProperty('geo')) {
+    	if (collectedNodes[node].hasOwnProperty('geo') && collectedNodes[node].hasOwnProperty('data')) {
             socket.emit('node', collectedNodes[node]);
         }
     }

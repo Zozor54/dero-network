@@ -4,7 +4,8 @@
     socketIo = require('socket.io'),
     async = require('async'),
     request = require('request-json'),
-    bodyParser = require('body-parser');
+    bodyParser = require('body-parser'),
+    compression = require('compression');
 
 
 var MongoClient = require("mongodb").MongoClient;
@@ -13,6 +14,7 @@ var mongoDbConnection = require('./lib/mongodb-singleton.js');
 
 app.use(express.static(__dirname + '/website'));
 app.use(bodyParser());
+app.use(compression());
 
 var api = require('./lib/api.js');
 var config = require('./config.json');
@@ -233,7 +235,7 @@ mongoDbConnection(function(databaseConnection) {
                 }
 
                 // Send to website
-                if (collectedNodes[ip].hasOwnProperty('geo')) {
+                if (collectedNodes[ip].hasOwnProperty('geo') && collectedNodes[ip].hasOwnProperty('data')) {
                     io.of('/website').emit('node', collectedNodes[ip]);
                 }
 
