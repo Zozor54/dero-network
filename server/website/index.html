@@ -1,424 +1,197 @@
 <!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="utf-8" />
-    <title>Dero Network Status</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
-    <link rel="stylesheet" href="./css/bootstrap.min.css">
-    <link rel="stylesheet" href="./css/fontawesome.min.css">
-    <style>
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: Source Sans Pro,sans-serif;
-        }
-
-        .container-fluid {
-            overflow: auto;
-        }
-
-        .row {
-            margin-left: 0px;
-            margin-right: 0px;
-        }
-        .col-xl-2, .col-xl-4, col-6 {
-            padding: 0;
-        }
-
-        .box {
-            border: 1px solid rgba(255, 255, 255, .2);
-        }
-
-        .small {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0;
-            color: #666;
-            text-transform: uppercase;
-        }
-
-        .graphTitle {
-            font-weight: 600;
-            font-size: 14px;
-            margin-left: 40px;
-            color: #aaa !important;
-            text-transform: uppercase
-        }
-
-        .informations {
-            margin-top: 10px;
-        }
-
-        .propagationBox {
-            position: relative;
-            width: 8px;
-            height: 8px;
-            float: left;
-            top: 5px;
-            margin-right: 5px;
-            -webkit-border-radius: 2px;
-            border-radius: 2px;
-        }
-
-        .bg-green .propagationBox {
-            background: #7bcc3a;
-        }
-
-        .bg-yellow .propagationBox {
-            background: #ffd162;
-        }
-
-        .bg-orange .propagationBox {
-            background: #ff8a00;
-        }
-
-        .bg-red .propagationBox {
-            background: #f74b4b;
-        }
-
-        .text-blue {
-            color: #10a0de!important
-        }
-        .text-green {
-            color: #7bcc3a !important;
-        }
-
-        .text-yellow {
-            color: #ffd162 !important;
-        }
-
-        .text-orange {
-            color: #ff8a00 !important;
-        }
-
-        .text-red {
-            color: #f74b4b !important;
-        }
-
-        table#nodesTable > thead > tr > th {
-            cursor: pointer;
-        }
+    <head>
+        <meta charset="utf-8" />
+        <title>Dero Network Status</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+        <link rel="stylesheet" href="./css/bootstrap.min.css">
+        <link rel="stylesheet" href="./css/fontawesome.min.css">
+        <link rel="stylesheet" href="./css/gunmetal.min.css">
+        <link rel="stylesheet" href="./css/app.css">
+    </head>
+    <body>
+        <div class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
+            <div class="row container-fluid">
+                <a href="../" class="navbar-brand"><img src="./img/dero-brand-logo.png" /> DERO Network Status</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" id="nav-network-stats" href="#">Network Stats</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="nav-pool-monitoring" href="#">Pool Monitoring</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="nav-pool-monitoring" href="#">Block Explorer</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="">
+            <div class="row informations">
+                <div class="col-xl-2 col-md-6 col-12">
+                    <div class="card border-light mb-3">
+                        <div class="card-header box-dark">
+                            <p class="title-stats">Height / Topo</p><p id="networkBlockHeight" class="value-stats text-blue"></p>
+                        </div>
+                        <div class="card-body box-dark">
+                            <p class="title-stats">Blocktime <span class="text-muted small">( Last 50 Blocks )</span></p>
+                            <div class="chart-container">
+                                <canvas id="chartBlockTime"></canvas>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="title-stats inline">Network</span> <span id="networkHashrate" class="value-stats-little"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-md-6 col-12">
+                    <div class="card border-light mb-3">
+                        <div class="card-header box-dark">
+                            <p class="title-stats">Difficulty</p><p id="networkDifficulty" class="value-stats text-red"></p>
+                        </div>
+                        <div class="card-body box-dark">
+                            <p class="title-stats">Network Difficulty</p>
+                            <div class="chart-container">
+                                <canvas id="chartDifficulty"></canvas>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="title-stats inline">Last Reward</span> <span id="networkLastReward" class="value-stats-little"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-md-6 col-12">
+                    <div class="card border-light mb-3">
+                        <div class="card-header box-dark">
+                            <p class="title-stats">Last Block</p><p id="networkLastBlock" class="value-stats"><span class="seconds" ></span></p>
+                        </div>
+                        <div class="card-body box-dark">
+                            <p class="title-stats">Transactions</p>
+                            <div class="chart-container">
+                                <canvas id="chartTransactions"></canvas>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="title-stats inline">Total Supply</span> <span id="networkTotalSupply" class="value-stats-little"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-md-6 col-12">
+                    <div class="card border-light mb-3">
+                        <div class="card-header box-dark">
+                            <p class="title-stats">AVG Block Time</p><p id="networkAVGBlockTime" class="value-stats text-yellow"><span class="seconds" ></span></p>
+                        </div>
+                        <div class="card-body box-dark">
+                            <p class="title-stats">Block Propagation</p>
+                            <div class="chart-container">
+                                <canvas id="chartBlockPropagation"></canvas>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="title-stats inline" data-toggle="tooltip" data-placement="top" title="Last 10 blocks">AVG TPS</span> <span id="networkAvgTx" class="value-stats-little"></span>
+                            <span class="title-stats inline"> | MEMPOOL</span>
+                            <span id="networkCurrentTx" class="value-stats-little"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-md-12 col-12 box">
+                    <div id="container" class="card border-light mb-3 box-dark"></div>
+                </div>
+            </div>
+            <div class="box row box-darker">
+                <div class="col-12">
+                    <div id="derodag"></div>
+                </div>
+            </div>
             
-        table#nodesTable tr {
-            line-height: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        table#nodesTable tr > td {
-            padding-bottom: 5px !important;
-            padding-top: 5px !important;
-        }
-
-        .stats {
-            padding-top: 15px;
-            padding-bottom: 15px
-        }
-
-        .stats-little {
-            padding-top: 5px;
-            padding-bottom: 5px
-        }
-
-        .text-stats {
-            padding-left: 40px;
-        }
-
-        .value-stats {
-            font-size: 30px;
-        }
-
-        .value-stats-little {
-            font-size: 14px;
-        }
-
-        .title-stats {
-            display: block;
-            font-weight: 800;
-            font-size: 14px;
-            color: #aaa !important;
-            text-transform: uppercase;
-        }
-
-        .inline {
-            display: inline-block !important;
-        }
-
-        div.text-stats-little > span {
-            vertical-align: bottom;
-        }
-
-        tbody > tr:nth-child(even) {
-            background: #282a2f;
-        }
-
-        .attention {
-            padding-top: 5px;
-            padding-bottom: 5px;
-            margin-bottom: 15px;
-        }
-
-        .hoverinfo {
-            color: #000;
-        }
-
-        .footer {
-            position: relative;
-            bottom: 0;
-            width: 100%;
-            height: 30px;
-            line-height: 30px;
-        }
-
-        .chart-container {
-            max-height: 85px;
-        }
-
-        #derodag {
-            height: 200px;
-        }
-
-        #container {
-            min-height: 200px;
-        }
-
-        .tooltip-inner {
-            color: #000;
-            text-align: center;
-            border-radius: .25rem;
-            font-size: 12px;
-            font-weight: 600;
-            background-color: #fff;
-        }
-
-        .tooltip.bs-tooltip-auto[x-placement^=top] .arrow::before, .tooltip.bs-tooltip-top .arrow::before {
-            margin-left: -3px;
-            content: "";
-            border-width: 5px 5px 0;
-            border-top-color: #fff;
-        }
-
-        .pointer {
-            cursor: pointer;
-        }
-
-        .nodeCanvas {
-            width: 140px !important;
-            margin: auto;
-        }
-
-        .form-check-inline {
-            vertical-align: middle;
-            margin-right: 0px;
-        }
-
-    </style>
-</head>
-
-<body>
-    <div class="container-fluid">
-        <div class="row informations">
-            <div class="col-xl-2 col-md-6 col-12">
-
-                <div class="stats box">
-                    <div class="text-stats">
-                        <span class="title-stats"> Height/Topo</span>
-                        <span id="networkBlockHeight" class="value-stats text-blue"></span>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
-
-                <div class="stats-little box">
-                    <div class="text-stats">
-                        <span class="title-stats inline"> Network</span>
-                        <span id="networkHashrate" class="value-stats-little"></span>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
-
-                <div class="box">
-                    <span class="text-left graphTitle">blocktime</span> <span class="small">(last 50 blocks)</span>
-                    <div class="chart-container">
-                    <canvas id="chartBlockTime"></canvas>
-                    </div>
-                </div>
+            <div class="notice row align-items-center box-darker">
+                <span >ATTENTION!</span> &nbsp; &nbsp;
+                <a class="btn btn-info" target="_blank" href="https://github.com/Mojo-LB/DeroStats/releases">Download Stats Client</a>
+                <span class="text-yellow pull-right">This page does not represent the entire state of the dero network - listing a node on this page is a voluntary process.</span>
             </div>
-
-            <div class="col-xl-2 col-md-6 col-12">
-                <div class="stats box">
-                    <div class="text-stats">
-                        <span class="title-stats"> Difficulty</span>
-                        <span id="networkDifficulty" class="value-stats text-red"></span>
-                    </div>
-                    <div class="clearfix"></div>
+            
+            <div class="row no-gutters">
+                <div class="col-12 table-responsive">
+                    <table id="nodesTable" class="table table-striped">
+                        <thead>
+                            <tr class="text-center">
+                                <th><span data-toggle="tooltip" data-placement="top" title="Nodes' name"><i class="fas fa-laptop"></i></span></th>
+                                <th>Latency</th>
+                                <th>Height/Topo</th>
+                                <th>Block Propagation</th>
+                                <th>Peers INC</th>
+                                <th>Peers OUT</th>
+                                <th>Version</th>
+                                <th>Last 10 blocks propagation</th>
+                                <th>Avg</th>
+                                <th>Last update</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rowNodes">
+                        </tbody>
+                    </table>
                 </div>
-                
-                <div class="stats-little box">
-                    <div class="text-stats">
-                        <span class="title-stats inline"> Last Reward</span>
-                        <span id="networkLastReward" class="value-stats-little"></span>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
-
-                <div class="box">
-                    <span class="text-left graphTitle">Network Difficulty</span>
-                    <div class="chart-container">
-                    <canvas id="chartDifficulty"></canvas>
-                </div>
-                </div>
-            </div>
-            <div class="col-xl-2 col-md-6 col-12">
-                <div class="stats box">
-                    <div class="text-stats">
-                        <span class="title-stats"> Last Block</span>
-                        <span id="networkLastBlock" class="value-stats"><span class="minutes" ></span><span class="seconds" ></span></span>
-                    </div>
-                    <div class="clearfix"></div>
-                   <!-- <p class="text-warning title">  Last Block</p>
-                    <span id="networkLastBlock"><span class="days" ></span><span class="hours" ></span><span class="minutes" ></span><span class="seconds" ></span></span> -->
-                </div>
-                <div class="stats-little box">
-                    <div class="text-stats">
-                        <span class="title-stats inline"> Total Supply</span>
-                        <span id="networkTotalSupply" class="value-stats-little"></span>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
-
-                <div class="box">
-                    <span class="test text-left graphTitle">transactions</span>
-                    <div class="chart-container">
-                    <canvas id="chartTransactions"></canvas>
-                </div>
-                </div>
-            </div>
-            <div class="col-xl-2 col-md-6 col-12">
-                <div class="stats box">
-                    <div class="text-stats">
-                        <span class="title-stats"> AVG Block Time</span>
-                        <span id="networkAVGBlockTime" class="value-stats text-yellow"></span>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
-
-                <div class="stats-little box">
-                    <div class="text-stats">
-                        <span class="title-stats inline" data-toggle="tooltip" data-placement="top" title="Last 10 blocks">AVG TPS</span>
-                        <span id="networkAvgTx" class="value-stats-little"></span>
-                        <span class="title-stats inline"> | MEMPOOL</span>
-                        <span id="networkCurrentTx" class="value-stats-little"></span>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
-
-                <div class="box">
-                    <span class="text-left graphTitle">block propagation</span>
-                    <div class="chart-container">
-                    <canvas id="chartBlockPropagation"></canvas>
-                </div>
-                </div>
-            </div>
-            <div class="col-xl-4 col-md-8 col-12 box">
-                <div id="container"></div>
             </div>
         </div>
-        <div class="box row">
-            <div class="col-12">
-                <div id="derodag"></div>
+        <footer class="footer">
+            <div class="container-fluid">
+                <span class="float-right small">
+                    <span class="form-check-inline"> Animations : </span>
+                    <div class="form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="animationChart">
+                        <label class="form-check-label small" for="animationChart">Chart</label>
+                    </div>
+                    <div class="form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="animationNodes">
+                        <label class="form-check-label small" for="animationNodes">Nodes</label>
+                    </div>
+                    <div class="form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="animationMap">
+                        <label class="form-check-label small" for="animationMap">Map</label>
+                    </div>
+                    <span class="form-check-inline">&nbsp;- Users connected:&nbsp;</span> <span class="text-green" id="userConnected"></span>
+                    <span class="form-check-inline">&nbsp;- Page latency:&nbsp;</span> <span id="myLatency"></span>
+                </span>
+            </div>
+        </footer>
+        <!-- Modal -->
+        <div class="modal fade" id="modalDag" tabindex="-1" role="dialog" aria-labelledby="modalDagLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalDagLabel">Real-Time DERO Dag</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        ...
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="row box attention">
-            <div class="col-12">
-                <span class="title-stats inline">ATTENTION!</span>
-                <span class="title-stats inline"><a target="_blank" href="https://github.com/Mojo-LB/DeroStats/releases"> - download stats client</a></span>
-                <span class="text-yellow float-right">This page does not represent the entire state of the dero network - listing a node on this page is a voluntary process.</span>
-            </div>
-        </div>
-
-
-        <div class="row no-gutters">
-            <div class="col-12 table-responsive">
-                <table id="nodesTable" class="table table-striped">
-                    <thead>
-                        <tr class="text-center">
-                            <th><span data-toggle="tooltip" data-placement="top" title="Nodes' name"><i class="fas fa-laptop"></i></span></th>
-                            <th>Latency</th>
-                            <th>Height/Topo</th>
-                            <th>Block Propagation</th>
-                            <th>Peers INC</th>
-                            <th>Peers OUT</th>
-                            <th>Version</th>
-                            <th>Last 10 blocks propagation</th>
-                            <th>Avg</th>
-                            <th>Last update</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rowNodes">
-
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <footer class="footer">
-      <div class="container-fluid">
-        <span class="float-right small">
-            <span class="form-check-inline"> Animations : </span>
-            <div class="form-check-inline">
-                <input class="form-check-input" type="checkbox" id="animationChart">
-                <label class="form-check-label" for="animationChart">Chart</label>
-            </div>
-            <div class="form-check-inline">
-                <input class="form-check-input" type="checkbox" id="animationNodes">
-                <label class="form-check-label" for="animationNodes">Nodes</label>
-            </div>
-            <div class="form-check-inline">
-                <input class="form-check-input" type="checkbox" id="animationMap">
-                <label class="form-check-label" for="animationMap">Map</label>
-            </div>
-            <span class="form-check-inline">&nbsp;- Users connected:&nbsp;</span> <span class="text-green" id="userConnected"></span> 
-            <span class="form-check-inline">&nbsp;- Page latency:&nbsp;</span> <span id="myLatency"></span>
-        </span>
-      </div>
-    </footer>
-
-    <!-- Modal -->
-    <div class="modal fade" id="modalDag" tabindex="-1" role="dialog" aria-labelledby="modalDagLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="modalDagLabel">Real-Time DERO Dag</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            ...
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <script src="./js/jquery-3.3.1.min.js"></script>
-    <script src="./js/d3.min.js"></script>
-    <script src="./js/topojson.min.js"></script>
-    <script src="./js/datamaps.world.min.js"></script>
-    <script src="./js/jquery.timeago.js"></script>
-    <script src="./js/popper.min.js"></script>
-    <script src="./js/bootstrap.min.js"></script>
-    <script src="./js/Chart.min.js"></script>
-    <script src="./js/moment.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="./js/vis.min.js"></script>
-    <script src="./js/custom.js"></script>
-</body>
-
+        <script src="./js/jquery-3.3.1.min.js"></script>
+        <script src="./js/d3.min.js"></script>
+        <script src="./js/topojson.min.js"></script>
+        <script src="./js/datamaps.world.min.js"></script>
+        <script src="./js/jquery.timeago.js"></script>
+        <script src="./js/popper.min.js"></script>
+        <script src="./js/bootstrap.min.js"></script>
+        <script src="./js/Chart.min.js"></script>
+        <script src="./js/moment.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="./js/vis.min.js"></script>
+        <script src="./js/custom.js"></script>
+    </body>
 </html>
