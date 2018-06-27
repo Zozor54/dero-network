@@ -1,10 +1,14 @@
 $(function() {
+    if (localStorage.getItem('animationOnOff') === null) {
+        localStorage.setItem('animationOnOff', false);
+    }
     if (localStorage.getItem('animationChart') === null) {
         localStorage.setItem('animationChart', false);
         localStorage.setItem('animationNodes', false);
         localStorage.setItem('animationMap', false);
     }
 
+    var prefAnimationOnOff = JSON.parse(localStorage.getItem('animationOnOff'));
     var prefAnimationChart = JSON.parse(localStorage.getItem('animationChart'));
     var prefAnimationNodes = JSON.parse(localStorage.getItem('animationNodes'));
     var prefAnimationMap = JSON.parse(localStorage.getItem('animationMap'));
@@ -738,17 +742,22 @@ Chart.pluginService.register(showZeroPlugin);
 $('input[type="checkbox"]').on('change', function() {
     let id = $(this)[0].id;
     let bEnable = $('input#'+id).is(':checked');
-    localStorage.setItem(id, bEnable);
 
-    switch (id){
-        case 'animationChart':
-            allChart = {};
-        break;
-
+    if (id === 'animationOnOff') {
+        localStorage.setItem('animationOnOff', bEnable);
+        localStorage.setItem('animationChart', bEnable);
+        localStorage.setItem('animationNodes', bEnable);
+        localStorage.setItem('animationMap', bEnable);
+    } else {
+        localStorage.setItem(id, bEnable);
     }
+
+    allChart = {};
+    document.location.reload();
 });
 
 // INIT
+$('input#animationOnOff').prop('checked', prefAnimationOnOff);
 $('input#animationChart').prop('checked', prefAnimationChart);
 $('input#animationNodes').prop('checked', prefAnimationNodes);
 $('input#animationMap').prop('checked', prefAnimationMap);

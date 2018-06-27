@@ -7,8 +7,9 @@
         <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
         <link rel="stylesheet" href="./css/bootstrap.min.css">
         <link rel="stylesheet" href="./css/fontawesome.min.css">
-        <link rel="stylesheet" href="./css/gunmetal.min.css">
+        <link rel="stylesheet" href="./css/material-default.min.css">
         <link rel="stylesheet" href="./css/app.css">
+        <link rel="stylesheet" href="./css/gunmetal.css">
     </head>
     <body>
         <div class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
@@ -36,84 +37,84 @@
         <div class="">
             <div class="row informations">
                 <div class="col-xl-2 col-md-6 col-12">
-                    <div class="card border-light mb-3">
-                        <div class="card-header box-dark">
+                    <div class="card border-dark mb-3">
+                        <div class="card-footer box-darkest">
+                            <span class="title-stats inline">Network</span> <span id="networkHashrate" class="value-stats-little"></span>
+                        </div>
+                        <div class="card-header box-darkest">
                             <p class="title-stats">Height / Topo</p><p id="networkBlockHeight" class="value-stats text-blue"></p>
                         </div>
-                        <div class="card-body box-dark">
+                        <div class="card-body box-darkest">
                             <p class="title-stats">Blocktime <span class="text-muted small">( Last 50 Blocks )</span></p>
                             <div class="chart-container">
                                 <canvas id="chartBlockTime"></canvas>
                             </div>
                         </div>
-                        <div class="card-footer">
-                            <span class="title-stats inline">Network</span> <span id="networkHashrate" class="value-stats-little"></span>
-                        </div>
                     </div>
                 </div>
                 <div class="col-xl-2 col-md-6 col-12">
-                    <div class="card border-light mb-3">
-                        <div class="card-header box-dark">
+                    <div class="card border-dark mb-3">
+                        <div class="card-footer box-darkest">
+                            <span class="title-stats inline">Last Reward</span> <span id="networkLastReward" class="value-stats-little"></span>
+                        </div>
+                        <div class="card-header box-darkest">
                             <p class="title-stats">Difficulty</p><p id="networkDifficulty" class="value-stats text-red"></p>
                         </div>
-                        <div class="card-body box-dark">
-                            <p class="title-stats">Network Difficulty</p>
+                        <div class="card-body box-darkest">
+                            <p class="title-stats box-darkest">Network Difficulty</p>
                             <div class="chart-container">
                                 <canvas id="chartDifficulty"></canvas>
                             </div>
                         </div>
-                        <div class="card-footer">
-                            <span class="title-stats inline">Last Reward</span> <span id="networkLastReward" class="value-stats-little"></span>
-                        </div>
                     </div>
                 </div>
                 <div class="col-xl-2 col-md-6 col-12">
-                    <div class="card border-light mb-3">
-                        <div class="card-header box-dark">
-                            <p class="title-stats">Last Block</p><p id="networkLastBlock" class="value-stats"><span class="seconds" ></span></p>
+                    <div class="card border-dark mb-3">
+                        <div class="card-footer box-darkest">
+                            <span class="title-stats inline">Total Supply</span> <span id="networkTotalSupply" class="value-stats-little"></span>
                         </div>
-                        <div class="card-body box-dark">
-                            <p class="title-stats">Transactions</p>
+                        <div class="card-header box-darkest">
+                            <p class="title-stats box-darkest">Last Block</p><p id="networkLastBlock" class="value-stats"><span class="seconds" ></span></p>
+                        </div>
+                        <div class="card-body box-darkest">
+                            <p class="title-stats box-darkest">Transactions</p>
                             <div class="chart-container">
                                 <canvas id="chartTransactions"></canvas>
                             </div>
                         </div>
-                        <div class="card-footer">
-                            <span class="title-stats inline">Total Supply</span> <span id="networkTotalSupply" class="value-stats-little"></span>
-                        </div>
                     </div>
                 </div>
                 <div class="col-xl-2 col-md-6 col-12">
-                    <div class="card border-light mb-3">
-                        <div class="card-header box-dark">
-                            <p class="title-stats">AVG Block Time</p><p id="networkAVGBlockTime" class="value-stats text-yellow"><span class="seconds" ></span></p>
-                        </div>
-                        <div class="card-body box-dark">
-                            <p class="title-stats">Block Propagation</p>
-                            <div class="chart-container">
-                                <canvas id="chartBlockPropagation"></canvas>
-                            </div>
-                        </div>
-                        <div class="card-footer">
+                    <div class="card border-dark mb-3">
+                        <div class="card-footer box-darkest">
                             <span class="title-stats inline" data-toggle="tooltip" data-placement="top" title="Last 10 blocks">AVG TPS</span> <span id="networkAvgTx" class="value-stats-little"></span>
                             <span class="title-stats inline"> | MEMPOOL</span>
                             <span id="networkCurrentTx" class="value-stats-little"></span>
                         </div>
+                        <div class="card-header box-darkest">
+                            <p class="title-stats box-darkest">AVG Block Time</p><p id="networkAVGBlockTime" class="value-stats text-yellow"><span class="seconds" ></span></p>
+                        </div>
+                        <div class="card-body box-darkest">
+                            <p class="title-stats box-darkest">Block Propagation</p>
+                            <div class="chart-container">
+                                <canvas id="chartBlockPropagation"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-xl-4 col-md-12 col-12 box">
-                    <div id="container" class="card border-light mb-3 box-dark"></div>
+                    <div id="container" class="card border-dark mb-3 box-darkest"></div>
                 </div>
             </div>
-            <div class="box row box-darker">
+            <div class="box row box-darkest">
                 <div class="col-12">
                     <div id="derodag"></div>
                 </div>
             </div>
             
-            <div class="notice row align-items-center box-darker">
+            <div class="notice row align-items-center box-darkest">
                 <span >ATTENTION!</span> &nbsp; &nbsp;
-                <a class="btn btn-info" target="_blank" href="https://github.com/Mojo-LB/DeroStats/releases">Download Stats Client</a>
+                <a class="" target="_blank" href="https://github.com/Mojo-LB/DeroStats/releases">Download Stats Client</a>
                 <span class="text-yellow pull-right">This page does not represent the entire state of the dero network - listing a node on this page is a voluntary process.</span>
             </div>
             
@@ -142,23 +143,29 @@
         </div>
         <footer class="footer">
             <div class="container-fluid">
-                <span class="float-right small">
-                    <span class="form-check-inline"> Animations : </span>
+                <div class="float-right small">
+                    <div class="inline"> Animations: &nbsp;</div>
                     <div class="form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="animationOnOff">
+                        <label class="form-check-label small" for="animationOnOff">ON / OFF</label>
+                    </div>
+                    <div class="form-check-inline hidden">
                         <input class="form-check-input" type="checkbox" id="animationChart">
                         <label class="form-check-label small" for="animationChart">Chart</label>
                     </div>
-                    <div class="form-check-inline">
+                    <div class="form-check-inline hidden">
                         <input class="form-check-input" type="checkbox" id="animationNodes">
                         <label class="form-check-label small" for="animationNodes">Nodes</label>
                     </div>
-                    <div class="form-check-inline">
+                    <div class="form-check-inline hidden">
                         <input class="form-check-input" type="checkbox" id="animationMap">
                         <label class="form-check-label small" for="animationMap">Map</label>
                     </div>
-                    <span class="form-check-inline">&nbsp;- Users connected:&nbsp;</span> <span class="text-green" id="userConnected"></span>
-                    <span class="form-check-inline">&nbsp;- Page latency:&nbsp;</span> <span id="myLatency"></span>
-                </span>
+                    <span class="spacing-10">|</span>
+                    <div class="inline">Users connected: <span class="text-green" id="userConnected">0</span></div>
+                    <span class="spacing-10">|</span>
+                    <div class="inline">Page latency: <span id="myLatency" class="text-green">0 MS</span></div>
+                </div>
             </div>
         </footer>
         <!-- Modal -->

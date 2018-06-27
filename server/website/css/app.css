@@ -1,6 +1,6 @@
 /**** BEGIN ZoZ ****/
 body {
-    /* background-color: #000; */
+    background-color: #000; 
     color: #fff;
     font-family: Source Sans Pro,sans-serif;
 }
@@ -212,8 +212,19 @@ tbody > tr:nth-child(even) {
 body {
     padding-top: 37px;
 }
+.bg-dark {
+    background-color: #101519 !important;
+}
+.hidden {
+    display: none;
+}
+.spacing-10 {
+    margin-right: 10px;
+    margin-left: 10px;
+}
 
 /* Navigation Styles */
+
 .navbar-brand {
     margin-right: 2rem;
 }
@@ -245,10 +256,13 @@ body {
 div[class*="col-"] {
     border: 0px solid #ccc;
 }
+.border-dark {
+    border-color: #242b31 !important;
+}
 .informations {
     margin-top: 12px;
 }
-.informations .border-light {
+.informations .border-dark {
     border-left: none;
 }
 .information .card {
@@ -262,13 +276,20 @@ div[class*="col-"] {
     margin-left: 5px;
     margin-right: 40px;
 }
+.notice a {
+    color: #349aed;
+    text-decoration: underline;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
 
 /* Card */
 .box-dark {
-    background:#0e2638;
+    background:#242b31;
 }
-.box-darker {
-    background: #011625;
+.box-darkest {
+    background: #000;
 }
 .card-header, .card-body, .card-footer {
     padding: 0;
@@ -277,12 +298,16 @@ div[class*="col-"] {
     margin: 0 !important;
 }
 .title-stats {
-    background: #1a2d40;
     padding: 8px;
     margin: 0;
+    border-top: 1px solid #242b31;
+}
+.card-footer {
+    /*text-align: center;*/
 }
 .card-footer .title-stats {
     background: none;
+    border: none;
 }
 .footer {
     margin-bottom: 20px;
@@ -291,12 +316,19 @@ div[class*="col-"] {
     text-align: center;
     margin: 0;
 }
+@media (max-width: 1200px),{
+    .col-md-6 .card.mb-3 {
+        border-bottom: 2px solid #7e838c !important;
+    }
+}
+
+
 
 /* Table */
 #nodesTable th {
     border: none;
-    background: #5b6876;
+    background: #101519;
 }
 #nodesTable td {
-    border-top: 1px solid #89929a;
+    border-top: 1px solid #454d54;
 }
