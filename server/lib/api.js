@@ -8,8 +8,9 @@ const colorGreen = '#7bcc3a';
 const colorBlue = '#10a0de';
 const colorYellow = '#ffd162';
 
-const targetTime = 9;
-const targetTimeHigh = 27;
+const targetTime = 12;
+const targetTimeMedium = 24;
+const targetTimeHigh = 36;
 
 var lastBlock = null;
 
@@ -49,8 +50,10 @@ module.exports= {
 							heightBlockTime.push(element.block_header.topoheight+1);
 							if (tmpBlockTime > targetTimeHigh) {
 								colorBlockTime.push(colorRed);
-							} else if (tmpBlockTime > targetTime) {
+							} else if (tmpBlockTime > targetTimeMedium) {
 								colorBlockTime.push(colorOrange);
+							} else if (tmpBlockTime > targetTime) {
+								colorBlockTime.push(colorYellow);
 							} else {
 								colorBlockTime.push(colorGreen);
 							}
