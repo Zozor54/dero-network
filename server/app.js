@@ -191,8 +191,12 @@ mongoDbConnection(function(databaseConnection) {
                     return;
                 }
                 data.informations.id = socket.myId;
-                data.informations.name = data.informations.name.toString().replace(/[<>\\?!&"'/]*/ig, '');
-                data.informations.description = data.informations.description.toString().replace(/[<>\\?!&"'/]*/ig, '');
+
+                // Check client informations
+                data.informations.name = data.informations.name.toString().substr(0, 24).replace(/[<>\\?!&"'/]*/ig, '');
+                data.informations.description = data.informations.description.toString().substr(0, 512).replace(/[<>\\?!&"'/]*/ig, '');
+
+
                 collectedNodes[ip].data = data;
                 collectedNodes[ip].block = globalCurrentHeight;
 
