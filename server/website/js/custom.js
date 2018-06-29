@@ -559,7 +559,7 @@ $(function() {
         network = new vis.Network(container, data, options);
 
         network.on("doubleClick", function (params) {
-            window.open('http://212.8.242.60:8081/block/'+params.nodes[0]);
+            window.open('http://explorer.dero.io/block/'+params.nodes[0]);
         });
 
         function recursiveDeroDag(parents) {
