@@ -210,7 +210,7 @@ $(function() {
 
         if (!nodes.hasOwnProperty(node.data.informations.id)) {
             // Create new node
-            var sNewNode = '<tr nodeName="'+node.data.informations.id+'" class="text-center"><td scope="row" class="pointer" name="node" data-toggle="tooltip" data-placement="top"></td><td name="latency"></td><td name="height"></td><td name="propagation"></td><td name="peers_inc"></td><td name="peers_out"></td><td name="version"></td><td name="history"></td><td name="average"></td><td name="updated"><span class="seconds" ></span><span class="milliseconds" ></span></td></tr>';
+            var sNewNode = '<tr nodeName="'+node.data.informations.id+'" class="text-center"><td scope="row" class="pointer" name="node" data-toggle="tooltip" data-placement="auto"></td><td name="latency"></td><td name="height"></td><td name="propagation"></td><td name="peers_inc"></td><td name="peers_out"></td><td name="version"></td><td name="history"></td><td name="average"></td><td name="updated"><span class="seconds" ></span><span class="milliseconds" ></span></td></tr>';
             $('#rowNodes').append(sNewNode);
             $('#rowNodes > tr[nodeName="' + node.data.informations.id + '"] > td[name="node"]').html(node.data.informations.name);
             if (node.data.informations.hasOwnProperty('description') && node.data.informations.description.length > 0) {
