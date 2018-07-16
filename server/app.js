@@ -1,4 +1,4 @@
- var express = require('express'),
+var express = require('express'),
     app = express(),
     server = require('http').createServer(app),
     socketIo = require('socket.io'),
@@ -186,7 +186,7 @@ mongoDbConnection(function(databaseConnection) {
                 if (!collectedNodes.hasOwnProperty(ip) || !collectedNodes[ip].hasOwnProperty('isSecure') || !collectedNodes[ip].isSecure) {
                     return;
                 }
-                if (!data.hasOwnProperty('informations') || !data.informations.hasOwnProperty('name') || data.informations.name.toString().trim() === "") {
+                if (!data.hasOwnProperty('informations') || !data.informations.hasOwnProperty('name') || data.informations.name.toString().trim() === "" || !data.informations.hasOwnProperty('description') || data.informations.description.toString().trim() === "") {
                     socket.emit('banned', 'You have to choose a name');
                     return;
                 }
@@ -318,4 +318,3 @@ mongoDbConnection(function(databaseConnection) {
 });
 
 server.listen(SERVER_PORT);
-
