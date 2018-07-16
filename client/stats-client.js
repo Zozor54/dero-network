@@ -6,7 +6,7 @@ var fs = require('fs');
 var readlineSync = require('readline-sync');
 
 // Don't modify this URL
-const serverURL = 'http://54.37.72.72:8080/nodes';
+const serverURL = 'http://85.217.171.11:8080/nodes';
 const VERSION = '0.3';
 
 var config = null;
@@ -19,7 +19,7 @@ var intervalRefresh = null;
 if (!fs.existsSync('config.json')) {
 	var configFile = {};
 
-	configFile.myDaemon = "http://127.0.0.1:30306";
+	configFile.myDaemon = "http://127.0.0.1:20206";
 	var name = readlineSync.question('What is the public name of your node?');
 	while (name.length < 3 || name.length > 24) {
 		name = readlineSync.question('What is the public name of your node? (3 charac min - 24 max)');
