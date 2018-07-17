@@ -511,11 +511,12 @@ $(function() {
         var data = [];
         var blockLink = [];
         var tmp = [];
+        var tmp2 = {};
 
         tmp.push(deroDag.value);
         data.push({ id: deroDag.value, font: { multi: 'html' }, label: '<b>'+deroDag.value.toString()+'</b>', color: "#7bcc3a", level: deroDag.depth, shapeProperties:{borderDashes:[5,0]} });
         recursiveDeroDag(deroDag);
- 
+        
         var data = {
             nodes: data,
             edges: blockLink
@@ -532,6 +533,7 @@ $(function() {
         var container = document.getElementById('derodag');
 
         var options = {
+            autoResize: true,
             nodes: {
                 borderWidth:2
             },
@@ -543,10 +545,13 @@ $(function() {
                 }
             },
             layout: {
+                improvedLayout: false,
                 hierarchical: {
                     direction: "RL",
                     levelSeparation: 100,
-                    edgeMinimization: false
+                    edgeMinimization: true,
+                    blockShifting: true,
+                    sortMethod: 'directed'
                 }
             },
             physics:false,
@@ -575,9 +580,17 @@ $(function() {
                     tmp.push(parents.value+'-'+enfant.value);
                 }
 
-                if (tmp.indexOf(enfant.value) == -1) {
+               /* if (tmp.indexOf(enfant.value) == -1) {
                     data.push({ id: enfant.value, font: { multi: 'html' }, label: '<b>'+enfant.value.toString()+'</b>', color: color, level: enfant.depth });
                     tmp.push(enfant.value);
+                } */
+
+                if (!tmp2.hasOwnProperty(enfant.value)) {
+                    tmp2[enfant.value] = data.push({ id: enfant.value, font: { multi: 'html' }, label: '<b>'+enfant.value.toString()+'</b>', color: color, level: enfant.depth });
+                } else {
+                    if (data[tmp2[enfant.value]-1].level > enfant.depth) {
+                        data[tmp2[enfant.value]-1].level = enfant.depth;
+                    }
                 }
                 recursiveDeroDag(enfant);
             });
