@@ -119,9 +119,9 @@ function recursive(arrayObject) {
 	mongoDbConnection(function(databaseConnection) {
 		async.eachOfSeries(arrayObject, function(object, index, outerCallback) {
 
-			if (object.node.depth === (depthMax - 1) && object.tips.length > 1) {
+			/*if (object.node.depth === (depthMax - 1) && object.tips.length > 1) {
 				depthMax--;
-			}
+			}*/
 
 			async.eachOfSeries(object.tips, function(hashParent, index2, innerCallback) {
 				databaseConnection.collection("block").findOne({ "block_header.hash" : hashParent}, function (error, previousBlock) {
@@ -134,7 +134,6 @@ function recursive(arrayObject) {
 						object.node.setParent(newNode);
 
 						if (object.node.depth + 1 <= depthMax) {
-							//console.log('DEPTH : '+ (object.node.depth + 1));
 							nextIteration.push({ tips: previousBlock.block_header.tips, node: newNode });
 						}
 
@@ -152,7 +151,6 @@ function recursive(arrayObject) {
 		    if (nextIteration.length !== 0) {
 				recursive(nextIteration);
 			} else {
-			   // console.log('done');
 			    global.deroDag = lastBlock;
 	    		io.of('/website').emit('derodag', lastBlock);
     		}
