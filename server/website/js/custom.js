@@ -570,13 +570,14 @@ $(function() {
         function recursiveDeroDag(parents) {
             var color = "#97c2fc";
             parents.parents.forEach(function(enfant) {
+                color = "#97c2fc";
                 if (parents.parents.length > 1) {
                     // Yellow for DAG
                     color = "#ffd162";
                 }
 
                 if (tmp.indexOf(parents.value+'-'+enfant.value) == -1) {
-                    blockLink.push({from: parents.value, to: enfant.value});
+                    blockLink.push({ from: parents.value, to: enfant.value, color:{ color: color } });
                     tmp.push(parents.value+'-'+enfant.value);
                 }
 
