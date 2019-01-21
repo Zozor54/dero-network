@@ -264,6 +264,26 @@ mongoDbConnection(function(databaseConnection) {
                             });
                             api.getChart();
                             api.getDeroDag();
+
+                            // Daily bloc - 30 days
+                            var now = new Date();
+                            var dd = now.getDate() < 10 ? "0"+now.getDate() : now.getDate();
+                            var mm = now.getMonth()+1; 
+                            if (mm < 10) {
+                                mm = "0"+mm;
+                            }
+                            var yyyy = now.getFullYear();
+                            databaseConnection.collection("daily_tx").findOne( { 'date': mm+"-"+dd+"-"+yyyy }, function (error, result) {
+                                if (result != null) {
+                                    var dailyCount = result.count + data.getBlockHeader.block_header.txcount;
+                                    databaseConnection.collection("daily_tx").updateOne( { 'date':  mm+"-"+dd+"-"+yyyy},  { $set: { "count" : dailyCount } });
+                                } else {
+                                    var dailyCount = { 'date' : mm+"-"+dd+"-"+yyyy, 'count' : data.getBlockHeader.block_header.txcount };
+                                    databaseConnection.collection("daily_tx").insert(dailyCount, null, function (error, results) {
+                                        winston.log('info', 'api -- Daily Count '+mm+"-"+dd+"-"+yyyy+' created.');
+                                    });
+                                }
+                            });
                         });
                     });
                 }

@@ -61,7 +61,7 @@ $(function() {
         drawChartBar($('#chartDifficulty'), 'Difficulty', data.chart.difficulty.height, data.chart.difficulty.difficulty, null);
         drawChartBar($('#chartBlockTime'), 'BlockTime', data.chart.blockTime.height, data.chart.blockTime.data, data.chart.blockTime.color);
         drawChartBar($('#chartTransactions'), 'Transactions', data.chart.difficulty.height, data.chart.transactions, null);
-        drawChartBar($('#chartBlockPropagation'), 'Block', data.chart.difficulty.height, data.chart.transactions, null);
+        drawChartBar($('#chartDailyTx'), 'Transactions', data.chart.daily_tx.date, data.chart.daily_tx.count, null);
         lastBlockMoment(data.block_timestamp);
 
         currentHeight = data.lastBlockHeader.topoheight;

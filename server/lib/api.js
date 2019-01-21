@@ -79,14 +79,28 @@ module.exports= {
 						}*/
 					});
 				}
-				collectedStats.chart = {
-					difficulty: {difficulty: difficulty.reverse(), height: height.reverse()},
-					blockTime: { data: blockTime.reverse(), color: colorBlockTime.reverse(), height: heightBlockTime.reverse()},
-					avgBlockTime: Math.round(((blockTime.reduce(reducer) / blockTime.length) * 10))  / 10,
-					transactions: transactions.reverse(),
-					avgTransactions: Math.round(sumTx / (lastBlockTimestamp - blockTimestamp))
-				};
-				io.of('/website').emit('daemon', collectedStats);
+
+				// Daily tx
+				databaseConnection.collection("daily_tx").find().sort({_id: 1}).limit(30).toArray(function (error, result) {
+					var dateTx = [];
+					var countTx = [];
+
+					if (result[0]) {
+						result.forEach(function(element, index) {
+							dateTx.push(element.date);
+							countTx.push(element.count);
+						});
+					}
+					collectedStats.chart = {
+						difficulty: {difficulty: difficulty.reverse(), height: height.reverse()},
+						blockTime: { data: blockTime.reverse(), color: colorBlockTime.reverse(), height: heightBlockTime.reverse()},
+						avgBlockTime: Math.round(((blockTime.reduce(reducer) / blockTime.length) * 10))  / 10,
+						transactions: transactions.reverse(),
+						avgTransactions: Math.round(sumTx / (lastBlockTimestamp - blockTimestamp)),
+						daily_tx: { date: dateTx, count: countTx }
+					};
+					io.of('/website').emit('daemon', collectedStats);
+				});
 			});
 		});
     },
