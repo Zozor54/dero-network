@@ -81,7 +81,7 @@ module.exports= {
 				}
 
 				// Daily tx
-				databaseConnection.collection("daily_tx").find().sort({_id: 1}).limit(30).toArray(function (error, result) {
+				databaseConnection.collection("daily_tx").find().sort({_id: -1}).limit(30).toArray(function (error, result) {
 					var dateTx = [];
 					var countTx = [];
 
@@ -97,7 +97,7 @@ module.exports= {
 						avgBlockTime: Math.round(((blockTime.reduce(reducer) / blockTime.length) * 10))  / 10,
 						transactions: transactions.reverse(),
 						avgTransactions: Math.round(sumTx / (lastBlockTimestamp - blockTimestamp)),
-						daily_tx: { date: dateTx, count: countTx }
+						daily_tx: { date: dateTx.reverse(), count: countTx.reverse() }
 					};
 					io.of('/website').emit('daemon', collectedStats);
 				});
